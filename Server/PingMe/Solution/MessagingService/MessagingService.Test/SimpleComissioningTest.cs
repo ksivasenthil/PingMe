@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -13,9 +14,10 @@ namespace MessagingService.Test
     public class SimpleComissioningTest
     {
         private static Mock<MessagingContext> repoInstance;
+        private static Mock<DbSet<MessagePing>> entInstance;
         private static TestContext testContextInstance;
         private static MessagePing dummyMessage;
-        private static List<MessagePing> messageSearchResult;
+        private static IQueryable<MessagePing> messageSearchResult;
         private static Guid recordId;
         private static string defaultDestination;
         private WorkerProcess testSubject;
@@ -43,11 +45,15 @@ namespace MessagingService.Test
                 Destination = "+918903442090",
                 Message = "Hello!!"
             };
-            messageSearchResult = new List<MessagePing>() { dummyMessage };
-            repoInstance = new Mock<MessagingContext>();
+            messageSearchResult = new List<MessagePing>() { dummyMessage }.AsQueryable<MessagePing>();
+            entInstance = new Mock<DbSet<MessagePing>>();
+            repoInstance = new Mock<MessagingContext>(new string[] { "Kalanjiyam" });
             repoInstance.Setup(ent => ent.MessageEntity.Find(It.IsAny<object[]>())).Returns(dummyMessage);
-            repoInstance.Setup(ent => ent.MessageEntity.Where(It.IsAny<Expression<Func<MessagePing, bool>>>())).Returns(messageSearchResult.AsQueryable<MessagePing>());
             repoInstance.Setup(ent => ent.MessageEntity.Add(It.IsAny<MessagePing>())).Returns(dummyMessage);
+            entInstance.As<IQueryable<MessagePing>>().Setup(rec => rec.Provider).Returns(messageSearchResult.Provider);
+            entInstance.As<IQueryable<MessagePing>>().Setup(rec => rec.Expression).Returns(messageSearchResult.Expression);
+            entInstance.As<IQueryable<MessagePing>>().Setup(rec => rec.ElementType).Returns(messageSearchResult.ElementType);
+            entInstance.As<IQueryable<MessagePing>>().Setup(rec => rec.GetEnumerator()).Returns(messageSearchResult.GetEnumerator());
             defaultDestination = "+919840200524";
         }
 
