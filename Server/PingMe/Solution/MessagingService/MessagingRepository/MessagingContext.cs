@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Data.Entity;
 using MessagingEntities;
+using System.Linq.Expressions;
 
 namespace MessagingRepository
 {
@@ -17,7 +18,20 @@ namespace MessagingRepository
         }
 
         #region Entities Exposed in this context
-        public DbSet<MessagePing> MessageEntity { get; set; }
+        public virtual DbSet<MessagePing> MessageEntity { get; set; }
+        public virtual IEnumerable<MessagePing> Where(Expression<Func<MessagePing, bool>> condition)
+        {
+            IEnumerable<MessagePing> searchResult = new List<MessagePing>();
+
+            var queryResult = this.MessageEntity.Where(condition);
+
+            bool valueObtained = null != searchResult;
+            if (valueObtained)
+            {
+                searchResult = queryResult.AsEnumerable<MessagePing>();
+            }
+            return searchResult;
+        }
         #endregion
 
         #region Event Handling

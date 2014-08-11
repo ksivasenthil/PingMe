@@ -119,10 +119,28 @@ namespace MessagingRepository.Test
 
             #endregion
         }
-        
+
         [TestMethod]
         [TestCategory("DatabaseTest")]
         public void GetMessageRecordFromDatabase()
+        {
+            #region Test Setup
+            MessagePing testSubject;
+            #endregion
+
+            #region Test
+            using (var context = new MessagingContext(connectionStringName))
+            {
+                testSubject = context.MessageEntity.Find(new object[] { recordId });
+                Assert.IsNotNull(testSubject, "Record not found in database");
+                Assert.IsTrue(recordId == testSubject.Id, "Record found in the database did not match record id");
+            }
+            #endregion
+        }
+
+        [TestMethod]
+        [TestCategory("DatabaseTest")]
+        public void SearchMessageInDatabase()
         {
             #region Test Setup
             MessagePing testSubject;
