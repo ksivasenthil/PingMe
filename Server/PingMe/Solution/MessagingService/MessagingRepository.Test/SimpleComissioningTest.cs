@@ -1,10 +1,11 @@
 ﻿using MessagingEntities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.Entity;
-
+using System.Linq;
 namespace MessagingRepository.Test
 {
     [TestClass]
@@ -61,28 +62,12 @@ namespace MessagingRepository.Test
         [TestCategory("DatabaseTest")]
         public void AddRecordsToDatabase()
         {
-            #region Test Setup
-            MessagePing testSubject = new MessagePing();
-            int insertResult;
-            #endregion
-
-            #region Test
-            testSubject.Id = recordId;
-            testSubject.Source = "+919840200524";
-            testSubject.Destination = "+918903442090";
-            testSubject.Message = "Hello!!";
-
-            using (var context = new MessagingContext(connectionStringName))
-            {
-                context.MessageEntity.Add(testSubject);
-                insertResult = context.SaveChanges();
-            }
-
-            Assert.IsTrue(insertResult > 0);
-            #endregion
+            MessagePing operationResult = SeedRecord();
+            
+            Assert.IsNotNull(operationResult);
         }
 
-        [TestMethod]
+        
         [TestCategory("DatabaseTest")]
         public void UpdateRecordToDatabase()
         {
@@ -112,7 +97,7 @@ namespace MessagingRepository.Test
 
             using (var context = new MessagingContext(connectionStringName))
             {
-                testSubject = context.MessageEntity.Find(new object[] { recordId });
+                testSubject = context.FindOne(new object[] { recordId });
                 Assert.IsNotNull(testSubject, "Record not found in database");
                 Assert.IsTrue(updatedMessage == testSubject.Message, "Record was not updated");
             }
@@ -131,7 +116,8 @@ namespace MessagingRepository.Test
             #region Test
             using (var context = new MessagingContext(connectionStringName))
             {
-                testSubject = context.MessageEntity.Find(new object[] { recordId });
+                var checkRecordExistence = AssertRecordExistence(recordId, context);
+                testSubject = context.FindOne(new object[] { recordId });
                 Assert.IsNotNull(testSubject, "Record not found in database");
                 Assert.IsTrue(recordId == testSubject.Id, "Record found in the database did not match record id");
             }
@@ -143,15 +129,22 @@ namespace MessagingRepository.Test
         public void SearchMessageInDatabase()
         {
             #region Test Setup
-            MessagePing testSubject;
+            IEnumerable<MessagePing> testSubjects;
+            string source = "+919840200524";
             #endregion
 
             #region Test
             using (var context = new MessagingContext(connectionStringName))
             {
-                testSubject = context.MessageEntity.Find(new object[] { recordId });
-                Assert.IsNotNull(testSubject, "Record not found in database");
-                Assert.IsTrue(recordId == testSubject.Id, "Record found in the database did not match record id");
+                var checkRecordExistence = AssertRecordExistence(recordId, context);
+                
+                testSubjects = context.Where(d=>d.Source == source);
+                
+                Assert.IsNotNull(testSubjects, "Record not found in database");
+                Assert.IsTrue(0 < testSubjects.Count());
+                var cursor = testSubjects.GetEnumerator();
+                cursor.MoveNext();
+                Assert.IsTrue(recordId == cursor.Current.Id, "Record found in the database did not match record id");
             }
             #endregion
         }
@@ -166,11 +159,11 @@ namespace MessagingRepository.Test
             {
                 using (context = new MessagingContext(connectionStringName))
                 {
-                    MessagePing recordToDelete = context.MessageEntity.Find(new object[] { recordId });
+                    MessagePing recordToDelete = context.FindOne(new object[] { recordId });
                     bool recordIsNotAvailable = null != recordToDelete;
                     if (recordIsNotAvailable)
                     {
-                        context.MessageEntity.Remove(recordToDelete);
+                        context.Remove(recordToDelete);
                         deleteResult = context.SaveChanges();
                     }
                 }
@@ -188,11 +181,33 @@ namespace MessagingRepository.Test
         {
             MessagePing testSubject;
 
-            testSubject = context.MessageEntity.Find(new object[] { recordId });
-
-            Assert.IsNotNull(testSubject, "Record not found in database");
+            testSubject = context.FindOne(new object[] { recordId });
+            try
+            {
+                Assert.IsNotNull(testSubject, "Record not found in database");
+            }
+            catch
+            {
+                SeedRecord();
+            }
 
             return testSubject;
+        }
+
+        private MessagePing SeedRecord()
+        {
+            MessagePing testSubject = new MessagePing();
+            MessagePing operationResult = null;
+            testSubject.Id = recordId;
+            testSubject.Source = "+919840200524";
+            testSubject.Destination = "+918903442090";
+            testSubject.Message = "Hello!!";
+
+            using (var context = new MessagingContext(connectionStringName))
+            {
+                operationResult = context.Add(testSubject);
+            }
+            return operationResult;
         }
     }
 }

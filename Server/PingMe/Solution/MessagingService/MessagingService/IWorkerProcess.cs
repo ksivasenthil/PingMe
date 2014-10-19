@@ -3,9 +3,11 @@ using System.Collections.Generic;
 
 namespace MessagingService
 {
-    internal interface IWorkerProcess
+    public interface IWorkerProcess
     {
         bool PostMessage(MessagePing messageDetails);
+
+        List<string> ListConversationRoot(string source);
 
         List<MessagePing> FetchMessages(string destination);
     }

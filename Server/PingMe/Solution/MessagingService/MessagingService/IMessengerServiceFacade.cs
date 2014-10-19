@@ -12,5 +12,8 @@ namespace MessagingService
 
         [OperationContract]
         List<MessagePing> FetchMessages(string destination);
+
+        [OperationContract]
+        List<string> Conversation(string source);
     }
 }
