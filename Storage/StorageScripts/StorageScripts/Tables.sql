@@ -6,7 +6,8 @@ CREATE TABLE [Messages]
 	Id [uniqueidentifier] NOT NULL,
 	Source [char](15) NOT NULL,
 	Destination [char](15) NOT NULL,
-	Message [nvarchar](140) NULL
+	Message [nvarchar](140) NULL,
+	Asset [varbinary](max) NULL,
 ) ON [PRIMARY];
 GO
 

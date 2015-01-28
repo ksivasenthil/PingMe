@@ -10,22 +10,32 @@ using AutoMapper;
 
 namespace MessagingRepository
 {
-    public partial class MessagingContext : DbContext
+#if DEBUG
+    public class MessagingContext : DbContext
+#elif RELEASE
+    public sealed class MessagingContext : DbContext
+#endif
     {
-        private IMappingExpression<MessagePing,MessagePing> messageCopier;
+        private IMappingExpression<MessagePing, MessagePing> messageCopier;
+        private DbSet<MessagePing> tableInstance;
 
         public MessagingContext(string connectionName)
             : base("name=" + connectionName)
         {
-            messageCopier = Mapper.CreateMap<MessagePing,MessagePing>();
+            messageCopier = Mapper.CreateMap<MessagePing, MessagePing>();
         }
 
         #region Entities Exposed in this context
-        public virtual DbSet<MessagePing> MessageEntity { get; set; }
+        private DbSet<MessagePing> MessageEntity { get { return tableInstance ?? this.Set<MessagePing>(); } }
         #endregion
 
         #region Methods available to consumers
+#if DEBUG
         public virtual IEnumerable<MessagePing> Where(Expression<Func<MessagePing, bool>> condition)
+#elif RELEASE
+        public IEnumerable<MessagePing> Where(Expression<Func<MessagePing, bool>> condition)
+
+#endif
         {
             IEnumerable<MessagePing> searchResult = new List<MessagePing>();
 
@@ -38,7 +48,11 @@ namespace MessagingRepository
             }
             return searchResult;
         }
+#if DEBUG
         public virtual MessagePing FindOne(params object[] keys)
+#elif RELEASE
+        public MessagePing FindOne(params object[] keys)
+#endif
         {
             MessagePing soughtRecord;
             try
@@ -56,7 +70,13 @@ namespace MessagingRepository
             }
             return soughtRecord;
         }
+
+#if DEBUG
         public virtual MessagePing Add(MessagePing data)
+#elif RELEASE
+        public MessagePing Add(MessagePing data)
+#endif
+
         {
             MessagePing returnValue;
             int recordAdded;
@@ -76,21 +96,33 @@ namespace MessagingRepository
             }
             return returnValue;
         }
+
+#if DEBUG
         public virtual MessagePing Update(MessagePing data)
+#elif RELEASE
+        public MessagePing Update(MessagePing data)
+#endif
+
         {
             bool validDataIsPassed = null != data && !String.IsNullOrEmpty(data.Source) && !String.IsNullOrEmpty(data.Destination);
             if (validDataIsPassed)
             {
-                
+
             }
             else
             {
                 throw new Exception("Invalid data");
             }
-            
+
             throw new NotImplementedException();
         }
+
+#if DEBUG
         public virtual MessagePing Remove(MessagePing data)
+#elif RELEASE
+        public MessagePing Remove(MessagePing data)
+#endif
+
         {
             bool validDataIsPassed = null != data && null != data.Id && Guid.Empty != data.Id;
             int operationResult;

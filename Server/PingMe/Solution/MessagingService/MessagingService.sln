@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Express 2012 for Web
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessagingService", "MessagingService\MessagingService.csproj", "{9851603A-2760-4174-AC20-91F722213CFA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessagingService.Test", "MessagingService.Test\MessagingService.Test.csproj", "{5F004777-2033-4D9C-946B-EE687C691BB7}"

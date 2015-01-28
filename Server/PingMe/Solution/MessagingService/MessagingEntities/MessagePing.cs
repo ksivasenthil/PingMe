@@ -24,5 +24,9 @@ namespace MessagingEntities
         [DataMember]
         [MaxLength(139), MinLength(1)]
         public string Message { get; set; }
+
+        [Column]
+        [DataMember]
+        public byte[] Asset { get; set; }
     }
 }
