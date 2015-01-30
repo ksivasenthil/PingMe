@@ -1,11 +1,34 @@
 ﻿<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <title></title>
+    <title>Ping Client</title>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+    <script type="text/javascript" src="Scripts/mustache.min.js"></script>
     <script type="text/javascript" src="Scripts/Ping.js"></script>
-    <link type="text/css" href="Style/Ping.less" rel="stylesheet" />
+    <link type="text/css" href="Style/Ping.css" rel="stylesheet" />
 </head>
 <body>
+    <div id="contentHost">
 
+    </div>
+    <div id="templateHost" style="display:none;">
+        <ul class="clear_circles_in_list">
+            {{#pings}}
+            <li class="clear_circles_in_list box_for_source">
+                <div class="flat_layout_left">
+                    <img src="#" class="contact_image_size" />
+                </div>
+                <div class="flat_layout_left">
+                    <div class="small_margin_vertical">
+                        <a href="#">{{Source}}</a>
+                    </div>
+                    <div class="small_margin_vertical">
+                        <span>{{last_message}}</span>
+                    </div>
+                </div>
+            </li>
+            {{/pings}}
+        </ul>
+    </div>
 </body>
 </html>
