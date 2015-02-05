@@ -1,0 +1,16 @@
+<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/">
+  <s:Header>
+    <Action s:mustUnderstand="1" xmlns="http://schemas.microsoft.com/ws/2005/05/addressing/none">http://vosspace.com/FamilyConnect/MessengerService/IMessengerServiceFacade/PostMessage</Action>
+  </s:Header>
+  <s:Body>
+    <PostMessage xmlns="http://vosspace.com/FamilyConnect/MessengerService">
+      <messageDetails xmlns:d4p1="http://schemas.datacontract.org/2004/07/MessagingEntities" xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+        <d4p1:Id>a2584fc6-d2f2-440a-a01c-dfdaf852d916</d4p1:Id>
+        <d4p1:Asset></d4p1:Asset>
+        <d4p1:Destination i:nil="true" />
+        <d4p1:Message i:nil="true" />
+        <d4p1:Source i:nil="true" />
+      </messageDetails>
+    </PostMessage>
+  </s:Body>
+</s:Envelope>

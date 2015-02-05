@@ -1,0 +1,7 @@
+<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/">
+    <s:Body>
+    <Conversation xmlns="http://vosspace.com/FamilyConnect/MessengerService">
+      <source>1</source>
+    </Conversation>
+  </s:Body>
+</s:Envelope>

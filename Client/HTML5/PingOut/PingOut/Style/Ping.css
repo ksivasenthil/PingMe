@@ -51,3 +51,33 @@ li.clear_circles_in_list {
 .hide {
     display: none;
 }
+
+.centerVertically {
+    margin-top: 45%;
+    margin-left: 10px;
+}
+
+.highTextBox {
+    height: 40px;
+    font-family: Courier New, Courier, monospace;
+    font-size: 12px;
+    margin-right: 5px;
+}
+
+.highButton {
+    height: 40px;
+    margin: 2px 2px 2px 2px;
+}
+
+a.small_link {
+    text-decoration: none;
+    text-decoration-color: none;
+    color: none;
+    cursor: default;
+    font-size: 10px;
+    font-family: Courier New, Courier, monospace;
+}
+
+#newPing {
+    z-index: 2;
+}

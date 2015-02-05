@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PingOut", "PingOut\PingOut.
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{8E74B00C-A5E7-4454-A062-D53E4DBA4775}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TempSVCClient", "TempSVCClient\TempSVCClient.csproj", "{76B97F45-BFEF-478D-BC12-6C814A459E03}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -17,6 +19,10 @@ Global
 		{0108FB9E-CE35-48CA-BD5D-F009503235D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0108FB9E-CE35-48CA-BD5D-F009503235D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0108FB9E-CE35-48CA-BD5D-F009503235D1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{76B97F45-BFEF-478D-BC12-6C814A459E03}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{76B97F45-BFEF-478D-BC12-6C814A459E03}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{76B97F45-BFEF-478D-BC12-6C814A459E03}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{76B97F45-BFEF-478D-BC12-6C814A459E03}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

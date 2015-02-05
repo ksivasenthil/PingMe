@@ -11,7 +11,7 @@
     <div id="contentHost">
 
     </div>
-    <div id="templateHost" style="display:none;">
+    <div id="conversationsList" class="hide">
         <ul class="clear_circles_in_list">
             {{#pings}}
             <li class="clear_circles_in_list box_for_source">
@@ -29,6 +29,17 @@
             </li>
             {{/pings}}
         </ul>
+        <a id="startConversation" onclick="javascript: pingBehaviors.invokeNewConversation();" class="small_link">Start Conversation</a>
+    </div>
+    <div id="newPing" class="hide">
+        <div class="centerVertically">
+            <div class="flat_layout_left">
+                <input type="text" id="txtPingTarget" placeholder="mobile number" class="highTextBox" />
+            </div>
+            <div>
+                <input type="button" id="btnStartPinging" value="Ping" class="highButton" />
+            </div>
+        </div>
     </div>
 </body>
 </html>

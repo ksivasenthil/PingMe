@@ -1,4 +1,5 @@
 ﻿using MessagingEntities;
+using MessagingRepository;
 using System;
 using System.Collections.Generic;
 
@@ -8,9 +9,10 @@ namespace MessagingService
     {
         internal IWorkerProcess postSorter;
 
-        public MessengerServiceFacade(IWorkerProcess postmaster)
+        public MessengerServiceFacade()
         {
             //postSorter = postmaster;
+            postSorter = new WorkerProcess(new MessagingContext("Kalanjiyam"));
         }
 
         #region Service Contract Method Implementation
@@ -47,7 +49,7 @@ namespace MessagingService
             List<string> myConversations = new List<string>();
             try
             {
-                myConversations= postSorter.ListConversationRoot(source);
+                myConversations = postSorter.ListConversationRoot(source);
             }
             catch (Exception ex)
             {
