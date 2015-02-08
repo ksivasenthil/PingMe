@@ -21,6 +21,7 @@ namespace MessagingService.Test
         private static IQueryable<MessagePing> messageSearchResult, conversationGroups;
         private static Guid recordId;
         private static string defaultDestination;
+        private static string defaultSource;
         private WorkerProcess testSubject;
 
         public TestContext TestContext
@@ -95,6 +96,7 @@ namespace MessagingService.Test
             entInstance.As<IQueryable<MessagePing>>().Setup(rec => rec.ElementType).Returns(messageSearchResult.ElementType);
             entInstance.As<IQueryable<MessagePing>>().Setup(rec => rec.GetEnumerator()).Returns(messageSearchResult.GetEnumerator());
             defaultDestination = "+919840200524";
+            defaultSource = "+919840200524";
         }
 
 
@@ -123,7 +125,7 @@ namespace MessagingService.Test
             #endregion
 
             #region Test
-            returnValue = testSubject.FetchMessages(defaultDestination);
+            returnValue = testSubject.FetchMessages(defaultSource, defaultDestination);
             repoInstance.Verify(e => e.Where(
                                                 It.Is<Expression<Func<MessagePing, bool>>>(
                                                     param => Expression.Lambda<Func<string>>(

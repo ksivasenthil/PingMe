@@ -20,6 +20,12 @@ namespace MessagingService
         public bool PostMessage(MessagePing messageDetails)
         {
             List<ValidationResult> validationSummary;
+            //Allowing the Id to be not available
+            bool isNotIdPresent = null == messageDetails.Id || Guid.Empty == messageDetails.Id;
+            if (isNotIdPresent)
+            {
+                messageDetails.Id = Guid.NewGuid();
+            }
             bool continueProcessingPostValidation = ValidatedPostedMessage(messageDetails, out validationSummary);
             bool operationResult;
             MessagePing savedMessage = null;
@@ -77,13 +83,15 @@ namespace MessagingService
             return conversationRoot;
         }
 
-        public List<MessagePing> FetchMessages(string destination)
+        public List<MessagePing> FetchMessages(string source, string destination)
         {
             List<MessagePing> searchResult = null;
             bool correctInput = !String.IsNullOrEmpty(destination);
             if (correctInput)
             {
-                Expression<Func<MessagePing, bool>> criteria = d => d.Destination == destination;
+                //Conversation is the union of messages sent from you (source) to other person (destination) and 
+                //messages sent from the other person (destination) to you (source)
+                Expression<Func<MessagePing, bool>> criteria = d => (d.Destination == destination && d.Source == source) || (d.Source == destination && d.Destination == source);
 
                 var intermediateResult = Storage.Where(criteria);
                 searchResult = intermediateResult.ToList<MessagePing>();

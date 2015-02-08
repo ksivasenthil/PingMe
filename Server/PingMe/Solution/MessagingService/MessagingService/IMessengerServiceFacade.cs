@@ -11,7 +11,7 @@ namespace MessagingService
         bool PostMessage(MessagePing messageDetails);
 
         [OperationContract]
-        List<MessagePing> FetchMessages(string destination);
+        List<MessagePing> FetchMessages(string source, string destination);
 
         [OperationContract]
         List<string> Conversation(string source);

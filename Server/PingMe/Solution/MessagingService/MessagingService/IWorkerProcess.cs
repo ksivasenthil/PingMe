@@ -9,6 +9,6 @@ namespace MessagingService
 
         List<string> ListConversationRoot(string source);
 
-        List<MessagePing> FetchMessages(string destination);
+        List<MessagePing> FetchMessages(string source, string destination);
     }
 }

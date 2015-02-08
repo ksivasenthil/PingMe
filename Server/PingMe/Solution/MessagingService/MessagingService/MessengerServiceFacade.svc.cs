@@ -30,12 +30,12 @@ namespace MessagingService
             return postResult;
         }
 
-        public List<MessagePing> FetchMessages(string destination)
+        public List<MessagePing> FetchMessages(string source, string destination)
         {
             List<MessagePing> messagesForMe = new List<MessagePing>();
             try
             {
-                messagesForMe = postSorter.FetchMessages(destination);
+                messagesForMe = postSorter.FetchMessages(source, destination);
             }
             catch (Exception ex)
             {

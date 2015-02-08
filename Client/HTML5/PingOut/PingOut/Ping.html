@@ -20,7 +20,7 @@
                 </div>
                 <div class="flat_layout_left">
                     <div class="small_margin_vertical">
-                        <a href="#">{{Source}}</a>
+                        <a href="#" onclick="javascript: pingBehaviors.loadMessages('{{Source}}','{{Destination}}');">{{Destination}}</a>
                     </div>
                     <div class="small_margin_vertical">
                         <span>{{last_message}}</span>
@@ -34,12 +34,30 @@
     <div id="newPing" class="hide">
         <div class="centerVertically">
             <div class="flat_layout_left">
-                <input type="text" id="txtPingTarget" placeholder="mobile number" class="highTextBox" />
+                <div>
+                    <input type="text" id="txtPingTarget" placeholder="mobile number" class="mediumTextBox" />
+                </div>
+                <div>
+                    <textarea cols="4" rows="10" type="text" id="txtPing" placeholder="message" class="mediumTextBox"></textarea>
+                </div>
             </div>
             <div>
-                <input type="button" id="btnStartPinging" value="Ping" class="highButton" />
+                <input type="button" id="btnStartPinging" value="Ping" class="highButton" onclick="javascript: pingBehaviors.startConverstion();" />
             </div>
         </div>
+    </div>
+    <div id="messages" class="hide">
+        <ul class="clear_circles_in_list">
+            {{#pings}}
+            <li class="clear_circles_in_list box_for_message">
+                <div class="flat_layout_left">
+                    <div class="small_margin_vertical">
+                        <span data-id="{{message_id}}">{{message}}</span>
+                    </div>
+                </div>
+            </li>
+            {{/pings}}
+        </ul>
     </div>
 </body>
 </html>

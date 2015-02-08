@@ -1,4 +1,5 @@
-﻿body {
+﻿#contentHost {
+    overflow-y: auto;
     width: 250px;
     height: 333px;
     border: solid 3px black;
@@ -57,11 +58,21 @@ li.clear_circles_in_list {
     margin-left: 10px;
 }
 
+.mediumTextBox {
+    height: 20px;
+    width: 90%;
+    font-family: Courier New, Courier, monospace;
+    font-size: 12px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+}
+
 .highTextBox {
     height: 40px;
     font-family: Courier New, Courier, monospace;
     font-size: 12px;
     margin-right: 5px;
+    padding-bottom: 5px;
 }
 
 .highButton {
@@ -80,4 +91,10 @@ a.small_link {
 
 #newPing {
     z-index: 2;
+}
+
+.box_for_message {
+    border-bottom: dashed 1px black;
+    height: 35px;
+    width: 93%;
 }
