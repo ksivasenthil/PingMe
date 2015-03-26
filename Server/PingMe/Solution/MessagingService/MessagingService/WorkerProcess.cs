@@ -27,9 +27,22 @@ namespace MessagingService
                 messageDetails.Id = Guid.NewGuid();
             }
             bool continueProcessingPostValidation = ValidatedPostedMessage(messageDetails, out validationSummary);
+            DateTime UtcTimeReference = DateTime.UtcNow;
+            //Add recieve time if not present
+            bool isRecieveTimeNotAvailable = null == messageDetails.MessageRecievedUTC ||
+                                            (null != messageDetails.MessageRecievedUTC &&
+                                            DateTime.MinValue == messageDetails.MessageRecievedUTC ||
+                                            DateTime.MaxValue == messageDetails.MessageRecievedUTC);
+            if (isRecieveTimeNotAvailable)
+            {
+                messageDetails.MessageRecievedUTC = UtcTimeReference;
+            }
+            bool dateRangeValidation = continueProcessingPostValidation &&
+                                        UtcTimeReference.AddDays(-7) <= messageDetails.MessageSentUTC &&
+                                        messageDetails.MessageSentUTC <= UtcTimeReference.AddDays(7);
             bool operationResult;
             MessagePing savedMessage = null;
-            if (continueProcessingPostValidation)
+            if (dateRangeValidation)
             {
                 try
                 {

@@ -7,7 +7,7 @@ CREATE TABLE [Messages]
 	Source [char](15) NOT NULL,
 	Destination [char](15) NOT NULL,
 	Message [nvarchar](140) NULL,
-	Asset [varbinary](max) NULL,
+	Asset [varbinary](max) NULL
 ) ON [PRIMARY];
 GO
 
@@ -24,4 +24,12 @@ CREATE NONCLUSTERED INDEX IX_Source_Lookup ON [Messages]
 	Source
 )
 WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]; 
+GO
+
+ALTER TABLE [Messages]
+ADD	MessageSentUTC [datetime] NULL;
+GO
+
+ALTER TABLE [Messages]
+ADD MessageRecievedUTC [datetime] NULL;
 GO

@@ -63,11 +63,11 @@ namespace MessagingRepository.Test
         public void AddRecordsToDatabase()
         {
             MessagePing operationResult = SeedRecord();
-            
+
             Assert.IsNotNull(operationResult);
         }
 
-        
+
         [TestCategory("DatabaseTest")]
         public void UpdateRecordToDatabase()
         {
@@ -129,7 +129,7 @@ namespace MessagingRepository.Test
         public void SearchMessageInDatabase()
         {
             #region Test Setup
-            IEnumerable<MessagePing> testSubjects;
+            List<MessagePing> testSubjects;
             string source = "+919840200524";
             #endregion
 
@@ -137,14 +137,11 @@ namespace MessagingRepository.Test
             using (var context = new MessagingContext(connectionStringName))
             {
                 var checkRecordExistence = AssertRecordExistence(recordId, context);
-                
-                testSubjects = context.Where(d=>d.Source == source);
-                
+
+                testSubjects = context.Where(d => d.Source == source).ToList<MessagePing>();
+
                 Assert.IsNotNull(testSubjects, "Record not found in database");
-                Assert.IsTrue(0 < testSubjects.Count());
-                var cursor = testSubjects.GetEnumerator();
-                cursor.MoveNext();
-                Assert.IsTrue(recordId == cursor.Current.Id, "Record found in the database did not match record id");
+                CollectionAssert.Contains(testSubjects, checkRecordExistence, "Record found in the database did not match record id");
             }
             #endregion
         }
@@ -188,7 +185,7 @@ namespace MessagingRepository.Test
             }
             catch
             {
-                SeedRecord();
+                testSubject = SeedRecord();
             }
 
             return testSubject;
@@ -202,6 +199,7 @@ namespace MessagingRepository.Test
             testSubject.Source = "+919840200524";
             testSubject.Destination = "+918903442090";
             testSubject.Message = "Hello!!";
+            testSubject.MessageSentUTC = DateTime.UtcNow;
 
             using (var context = new MessagingContext(connectionStringName))
             {
