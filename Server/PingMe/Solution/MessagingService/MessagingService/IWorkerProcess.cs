@@ -7,7 +7,7 @@ namespace MessagingService
     {
         bool PostMessage(MessagePing messageDetails);
 
-        List<string> ListConversationRoot(string source);
+        List<PingerProfile> ListConversationRoot(string source);
 
         List<MessagePing> FetchMessages(string source, string destination);
     }

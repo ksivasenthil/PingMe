@@ -168,8 +168,10 @@ namespace MessagingRepository.Test
             catch { }
             finally
             {
-                context.Dispose();
-
+                if (null != context)
+                {
+                    context.Dispose();
+                }
             }
             #endregion
         }

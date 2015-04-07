@@ -4,6 +4,7 @@ using Moq;
 using MessagingRepository;
 using System.Data.Entity;
 using MessagingEntities;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Collections.Generic;
 
@@ -25,6 +26,7 @@ namespace MessagingService.Test
         private const string DefaultSource = "+919840200524";
         private const string DefaultDestination = "+9940425465";
         private static MessagePing passedToRepo;
+        private static List<MessagePing> testDataCollection;
 
         public TestContext TestContext
         {
@@ -44,11 +46,66 @@ namespace MessagingService.Test
             testContextInstance = contextInstance;
             dummyMessage = new MessagePing();
 
-            //TODO: Add instantiation logic here
+            #region Prepare test data
+            testDataCollection = new List<MessagePing>();
+            testDataCollection.Add(new MessagePing()
+            {
+                Source = "+919840200524",
+                Destination = "+919941841903",
+                Message = "Hello, Good Morning Appa!",
+                MessageSentUTC = DateTime.UtcNow
+            });
+
+            testDataCollection.Add(new MessagePing()
+            {
+                Source = "+919941841903",
+                Destination = "+919840200524",
+                Message = "Good Morning Beta!",
+                MessageSentUTC = DateTime.UtcNow.AddMinutes(2)
+            });
+
+            testDataCollection.Add(new MessagePing()
+            {
+                Source = "+919840200524",
+                Destination = "+919941841903",
+                Message = "How are you appa",
+                MessageSentUTC = DateTime.UtcNow.AddMinutes(1)
+            });
+
+            testDataCollection.Add(new MessagePing()
+            {
+                Source = "+919941841903",
+                Destination = "+919840200524",
+                Message = "I am very good. Hope you are also good and a rockstar in your own way..",
+                MessageSentUTC = DateTime.UtcNow.AddMinutes(3)
+            });
+
+            testDataCollection.Add(new MessagePing()
+            {
+                Source = "+919941841903",
+                Destination = "+919551049084",
+                Message = "Good morning dear wife",
+                MessageSentUTC = DateTime.UtcNow.AddMinutes(3)
+            });
+
+            testDataCollection.Add(new MessagePing()
+            {
+                Source = "+919940425465",
+                Destination = "+919840200524",
+                Message = "Gud morning <3",
+                MessageSentUTC = DateTime.UtcNow.AddMinutes(3)
+            });
+
+            #endregion
+
             entInstance = new Mock<DbSet<MessagePing>>();
             repoInstance = new Mock<MessagingContext>(new string[] { "Kalanjiyam" });
             repoInstance.Setup(ent => ent.FindOne(It.IsAny<object[]>())).Returns(dummyMessage);
-            repoInstance.Setup(ent => ent.Where(It.IsAny<Expression<Func<MessagePing, bool>>>())).Returns(new List<MessagePing>().ToArray());
+            repoInstance.Setup(ent => ent.Where(It.IsAny<Expression<Func<MessagePing, bool>>>())).Returns<Expression<Func<MessagePing, bool>>>(
+                (expr) =>
+                {
+                    return testDataCollection.Where(expr.Compile()).ToList<MessagePing>();
+                });
             repoInstance.Setup(ent => ent.Add(It.IsAny<MessagePing>())).Callback<MessagePing>((data) => passedToRepo = data).Returns(dummyMessage);
         }
 
@@ -56,7 +113,8 @@ namespace MessagingService.Test
         [TestMethod]
         public void DoesMessageHaveMessageSentTime()
         {
-            testSubject = new WorkerProcess(repoInstance.Object);
+            //TODO: Properly instantiate the WorkerProcess
+            testSubject = new WorkerProcess(repoInstance.Object, null, null);
             MessagePing data = new MessagePing()
             {
                 Id = Guid.NewGuid(),
@@ -73,7 +131,8 @@ namespace MessagingService.Test
         [TestMethod]
         public void SentTimeIsAbove1WeekInPast()
         {
-            testSubject = new WorkerProcess(repoInstance.Object);
+            //TODO: Properly instantiate the worker process
+            testSubject = new WorkerProcess(repoInstance.Object, null, null);
             MessagePing data = new MessagePing()
             {
                 Id = Guid.NewGuid(),
@@ -90,7 +149,8 @@ namespace MessagingService.Test
         [TestMethod]
         public void SentTimeIsExactly1WeekInPast()
         {
-            testSubject = new WorkerProcess(repoInstance.Object);
+            //TODO: Properly instantiate the worker process
+            testSubject = new WorkerProcess(repoInstance.Object, null, null);
             MessagePing data = new MessagePing()
             {
                 Id = Guid.NewGuid(),
@@ -107,7 +167,8 @@ namespace MessagingService.Test
         [TestMethod]
         public void SentTimeIsAbove1WeekInFuture()
         {
-            testSubject = new WorkerProcess(repoInstance.Object);
+            //TODO: Properly instantiate the worker process
+            testSubject = new WorkerProcess(repoInstance.Object, null, null);
             MessagePing data = new MessagePing()
             {
                 Id = Guid.NewGuid(),
@@ -124,7 +185,8 @@ namespace MessagingService.Test
         [TestMethod]
         public void SentTimeIsExactly1WeekInFuture()
         {
-            testSubject = new WorkerProcess(repoInstance.Object);
+            //TODO: Properly instantiate the worker process
+            testSubject = new WorkerProcess(repoInstance.Object, null, null);
             MessagePing data = new MessagePing()
             {
                 Id = Guid.NewGuid(),
@@ -135,13 +197,15 @@ namespace MessagingService.Test
                 MessageRecievedUTC = null
             };
             bool returnValue = testSubject.PostMessage(data);
-            Assert.IsTrue(returnValue);
+            //Future Messages are not allowed
+            Assert.IsFalse(returnValue);
         }
 
         [TestMethod]
         public void SentTimeIsLessThanMaxTime()
         {
-            testSubject = new WorkerProcess(repoInstance.Object);
+            //TODO: Properly instantiate the worker process
+            testSubject = new WorkerProcess(repoInstance.Object, null, null);
             MessagePing data = new MessagePing()
             {
                 Id = Guid.NewGuid(),
@@ -158,7 +222,8 @@ namespace MessagingService.Test
         [TestMethod]
         public void DoesServerPreserveSentTimeForMessage()
         {
-            testSubject = new WorkerProcess(repoInstance.Object);
+            //TODO: Properly instantiate the worker process
+            testSubject = new WorkerProcess(repoInstance.Object, null, null);
             DateTime timestamp = DateTime.UtcNow;
             MessagePing data = new MessagePing()
             {
@@ -170,7 +235,7 @@ namespace MessagingService.Test
                 MessageRecievedUTC = null
             };
             bool returnValue = testSubject.PostMessage(data);
-            Assert.AreEqual(passedToRepo.MessageSentUTC, timestamp);
+            Assert.AreEqual(data.MessageSentUTC, timestamp);
         }
 
         #endregion
@@ -179,7 +244,8 @@ namespace MessagingService.Test
         [TestMethod]
         public void DoesServerAddRecievedTimeForMessage()
         {
-            testSubject = new WorkerProcess(repoInstance.Object);
+            //TODO: Properly instantiate the worker process
+            testSubject = new WorkerProcess(repoInstance.Object, null, null);
             MessagePing data = new MessagePing()
             {
                 Id = Guid.NewGuid(),
@@ -196,7 +262,8 @@ namespace MessagingService.Test
         [TestMethod]
         public void IsRecievedTimeBetweenMinAndMaxDateTimeValue()
         {
-            testSubject = new WorkerProcess(repoInstance.Object);
+            //TODO: Properly instantiate the worker process
+            testSubject = new WorkerProcess(repoInstance.Object, null, null);
             MessagePing data = new MessagePing()
             {
                 Id = Guid.NewGuid(),
@@ -214,7 +281,8 @@ namespace MessagingService.Test
         [TestMethod]
         public void IsRecievedTimeWithinPast1Hour()
         {
-            testSubject = new WorkerProcess(repoInstance.Object);
+            //TODO: Properly instantiate the worker process
+            testSubject = new WorkerProcess(repoInstance.Object, null, null);
             MessagePing data = new MessagePing()
             {
                 Id = Guid.NewGuid(),
@@ -232,7 +300,8 @@ namespace MessagingService.Test
         [TestMethod]
         public void BothSentAndRecievedTimeAreNotPresent()
         {
-            testSubject = new WorkerProcess(repoInstance.Object);
+            //TODO: Properly instantiate the worker process
+            testSubject = new WorkerProcess(repoInstance.Object, null, null);
             MessagePing data = new MessagePing()
             {
                 Id = Guid.NewGuid(),
@@ -249,7 +318,8 @@ namespace MessagingService.Test
         [TestMethod]
         public void IsTimeRecievedInUTCForMessage()
         {
-            testSubject = new WorkerProcess(repoInstance.Object);
+            //TODO: Properly instantiate the worker process
+            testSubject = new WorkerProcess(repoInstance.Object, null, null);
             DateTime timestamp = DateTime.Now;
             MessagePing data = new MessagePing()
             {
@@ -264,13 +334,41 @@ namespace MessagingService.Test
             Assert.IsTrue(DateTimeKind.Utc == data.MessageRecievedUTC.Value.Kind);
         }
 
+        [TestMethod]
+        public void RecievedTimeIsAlwaysGreaterThanSentTime()
+        {
+            //TODO: Properly instantiate the worker process
+            testSubject = new WorkerProcess(repoInstance.Object, null, null);
+            DateTime timestamp = DateTime.UtcNow;
+            MessagePing data = new MessagePing()
+            {
+                Id = Guid.NewGuid(),
+                Source = DefaultSource,
+                Destination = DefaultDestination,
+                Message = "Hi!!",
+                MessageSentUTC = timestamp.AddMilliseconds(1),
+                MessageRecievedUTC = timestamp
+            };
+            bool returnValue = testSubject.PostMessage(data);
+            Assert.IsFalse(returnValue);
+        }
         #endregion
 
         #region Conversation Order Tests
+
         [TestMethod]
         public void CheckConversationOrder()
         {
-            //TODO: Implement this.
+            //TODO: Properly instantiate the worker process
+            testSubject = new WorkerProcess(repoInstance.Object, null, null);
+            string source = "+919941841903";
+            string destination = "+919840200524";
+            List<MessagePing> conversation = testSubject.FetchMessages(source, destination);
+            for (int i = 1; i < conversation.Count - 1; i++)
+            {
+                Assert.IsTrue(conversation[i].MessageSentUTC > conversation[i - 1].MessageSentUTC,
+                            "The test failed for " + i + " iteration");
+            }
         }
         #endregion
 

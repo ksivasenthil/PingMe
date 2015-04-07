@@ -10,6 +10,11 @@
     margin: 0px 2px 0px 3px;
 }
 
+.flat_layout_right {
+    float: right;
+    margin: 0px 2px 0px 3px;
+}
+
 .clear_layout_sets {
     clear: both;
 }
@@ -32,7 +37,7 @@ li.clear_circles_in_list {
         cursor: default;
     }
 
-.small_margin_vertical {
+.small_margin {
     margin: 2px 1px 2px 1px;
 }
 
@@ -97,4 +102,22 @@ a.small_link {
     border-bottom: dashed 1px black;
     height: 35px;
     width: 93%;
+}
+
+.small_info_font {
+    font-size: 8px;
+}
+
+.message_box_area {
+    height: 85%;
+    overflow-y: auto;
+}
+
+#message_text {
+    margin: 1px 1px 1px 1px;
+}
+
+#message_send {
+    margin: 1px 1px 1px 1px;
+    height: 35px;
 }

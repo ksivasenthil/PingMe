@@ -80,6 +80,8 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IMembershipService.cs" />
+    <Compile Include="IProfileService.cs" />
     <Compile Include="IWorkerProcess.cs" />
     <Compile Include="MessengerServiceFacade.svc.cs">
       <DependentUpon>MessengerServiceFacade.svc</DependentUpon>
@@ -88,9 +90,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WorkerProcess.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="App_Data\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Content Include="packages.config" />
     <None Include="Properties\PublishProfiles\Localhost.pubxml" />

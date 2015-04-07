@@ -61,7 +61,8 @@ namespace MessagingRepository
             }
             catch (Exception ex)
             {
-                throw ex;
+                //TODO: Log the exception to disk
+                throw;
             }
             bool recordNoFound = null == soughtRecord;
             if (recordNoFound)
@@ -86,7 +87,10 @@ namespace MessagingRepository
                 recordAdded = this.SaveChanges();
             }
             catch (Exception ex)
-            { throw ex; }
+            {
+                //TODO: Log the exception 
+                throw;
+            }
 
             bool couldNotAddRecord = 0 >= recordAdded;
 

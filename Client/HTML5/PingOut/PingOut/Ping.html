@@ -47,17 +47,27 @@
         </div>
     </div>
     <div id="messages" class="hide">
-        <ul class="clear_circles_in_list">
-            {{#pings}}
-            <li class="clear_circles_in_list box_for_message">
-                <div class="flat_layout_left">
-                    <div class="small_margin_vertical">
-                        <span data-id="{{message_id}}">{{message}}</span>
+        <div class="message_box_area">
+            <ul class="clear_circles_in_list">
+                {{#pings}}
+                <li class="clear_circles_in_list box_for_message">
+                    <div class="{{participant_direction}}">
+                        <div class="small_margin_vertical">
+                            <span data-id="{{message_id}}">{{message}}</span>
+                            <br />
+                            <span class="flat_layout_right small_info_font">
+                                {{sent_time}} > {{recieved_time}}
+                            </span>
+                        </div>
                     </div>
-                </div>
-            </li>
-            {{/pings}}
-        </ul>
+                </li>
+                {{/pings}}
+            </ul>
+        </div>
+        <div class="small_margin">
+            <textarea id="message_text" name="message_text" cols="20"></textarea>
+            <button id="message_send" name="message_sed" style="vertical-align:top">Send</button>
+        </div>
     </div>
 </body>
 </html>

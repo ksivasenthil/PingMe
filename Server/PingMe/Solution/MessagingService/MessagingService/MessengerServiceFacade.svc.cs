@@ -12,7 +12,8 @@ namespace MessagingService
         public MessengerServiceFacade()
         {
             //postSorter = postmaster;
-            postSorter = new WorkerProcess(new MessagingContext("Kalanjiyam"));
+            //TODO: Properly instantiate the WorkerProcess
+            postSorter = new WorkerProcess(new MessagingContext("Kalanjiyam"), null, null);
         }
 
         #region Service Contract Method Implementation
@@ -25,7 +26,8 @@ namespace MessagingService
             }
             catch (Exception ex)
             {
-                throw ex;
+                //TODO: Log exception properly
+                throw;
             }
             return postResult;
         }
@@ -39,7 +41,8 @@ namespace MessagingService
             }
             catch (Exception ex)
             {
-                throw ex;
+                //TODO: Log exception to disk
+                throw;
             }
             return messagesForMe;
         }
@@ -49,11 +52,12 @@ namespace MessagingService
             List<string> myConversations = new List<string>();
             try
             {
-                myConversations = postSorter.ListConversationRoot(source);
+                myConversations = null; //postSorter.ListConversationRoot(source);
             }
             catch (Exception ex)
             {
-                throw ex;
+                //TODO: Log exception to disk
+                throw;
             }
             return myConversations;
         }

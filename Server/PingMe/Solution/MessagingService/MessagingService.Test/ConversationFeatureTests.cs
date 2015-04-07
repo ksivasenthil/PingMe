@@ -5,17 +5,21 @@ using Moq;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
-using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Web.Profile;
+using System.Web.Security;
 
 namespace MessagingService.Test
 {
     [TestClass]
-    public class SimpleComissioningTest
+    public class ConversationFeatureTests
     {
         private static Mock<MessagingContext> repoInstance;
         private static Mock<DbSet<MessagePing>> entInstance;
+        private static Mock<IMembershipService> membershipInstance;
+        private static Mock<IProfileService> profileInstance;
+        private static Mock<MembershipUser> userInstance;
         private static TestContext testContextInstance;
         private static MessagePing dummyMessage, messagesDestination;
         private static IQueryable<MessagePing> messageSearchResult, conversationGroups;
@@ -62,8 +66,20 @@ namespace MessagingService.Test
             conversationGroups = new List<MessagePing>() { messagesDestination }.AsQueryable<MessagePing>();
             entInstance = new Mock<DbSet<MessagePing>>();
             repoInstance = new Mock<MessagingContext>(new string[] { "Kalanjiyam" });
+            membershipInstance = new Mock<IMembershipService>();
+            profileInstance = new Mock<IProfileService>();
+            userInstance = new Mock<MembershipUser>();
             repoInstance.Setup(ent => ent.FindOne(It.IsAny<object[]>())).Returns(dummyMessage);
             repoInstance.Setup(ent => ent.Add(It.IsAny<MessagePing>())).Returns(dummyMessage);
+            userInstance.Setup(usr => usr.ProviderUserKey).Returns(recordId);
+            membershipInstance.Setup(mem => mem.CreateUser(It.IsAny<string>(), It.IsAny<string>(),
+                                                            It.IsAny<string>(), It.IsAny<string>(),
+                                                            It.IsAny<string>(), It.IsAny<bool>())).
+                                Returns(MembershipCreateStatus.Success);
+            membershipInstance.Setup(mem => mem.GetUser(It.IsAny<string>())).Returns(userInstance.Object);
+            profileInstance.Setup(pro => pro.GetPropertyValue(It.IsAny<string>(), It.IsAny<string>())).Returns("http://www.google.com");
+
+            #region Note on the mocking comment
             /*
              * NOTE: - Very Important notice to mock expressions in Moq.
              * The code does not do proper set up for the scenario described here
@@ -98,6 +114,8 @@ namespace MessagingService.Test
                                                     ((MemberExpression)(((expr.Body as BinaryExpression).Right as BinaryExpression).Right as BinaryExpression).Right).Compile()()
                                                     == "+919840200524")))
                                                     .Returns(conversationGroups);*/
+            #endregion
+
             repoInstance.Setup(
                                 ent => ent.Where(
                                     It.IsAny<Expression<Func<MessagePing, bool>>>()
@@ -125,53 +143,80 @@ namespace MessagingService.Test
             defaultSource = "+919840200524";
         }
 
-
         [TestMethod]
-        public void PostMessageSucceeds()
+        public void ListConversationRootSucceeds()
         {
-            #region Setup for test
-            //TODO: Properly instantiate the WorkerProcess
-            testSubject = new WorkerProcess(repoInstance.Object, null, null);
-            bool returnValue;
+            #region Test Setup
+            List<PingerProfile> callResult;
+            string source = "+919840200524";
+            testSubject = new WorkerProcess(repoInstance.Object, membershipInstance.Object, profileInstance.Object);
             #endregion
 
-            #region Test
-            returnValue = testSubject.PostMessage(dummyMessage);
-            repoInstance.Verify(ent => ent.Add(dummyMessage));
-            Assert.IsTrue(returnValue);
+            #region Test Operations
+            callResult = testSubject.ListConversationRoot(source);
+            #endregion
+
+            #region Assert Operation Result
+            Assert.IsNotNull(callResult);
             #endregion
         }
 
         [TestMethod]
-        public void FetchMessageSucceds()
+        public void CheckConversationProfileValues()
         {
-            #region Setup for test
-            //TODO: Properly instantiate the WorkerProcess
-            testSubject = new WorkerProcess(repoInstance.Object, null, null);
-            List<MessagePing> returnValue;
-            Expression<Func<MessagePing, bool>> expr = d => d.Destination == defaultDestination;
+            #region Test Setup
+            List<PingerProfile> callResult;
+            string source = "+919840200524";
+            testSubject = new WorkerProcess(repoInstance.Object, membershipInstance.Object, profileInstance.Object);
             #endregion
 
-            #region Test
-            returnValue = testSubject.FetchMessages(defaultSource, defaultDestination);
-            //repoInstance.Verify(e => e.Where(
-            //                                    It.Is<Expression<Func<MessagePing, bool>>>(
-            //                                        param => Expression.Lambda<Func<string>>(
-            //                                            (MemberExpression)(param.Body as BinaryExpression).Right
-            //                                        ).Compile()() == "+919840200524")
-            //                                    )
-            //                                );
-            //repoInstance.Verify(e => e.Where(
-            //                                    It.Is<Expression<Func<MessagePing, bool>>>(
-            //                                        param => Expression.Lambda<Func<string>>(
-            //                                            (MemberExpression)(param.Body as BinaryExpression).Left
-            //                                        ).Body.ToString() == "d.Destination")
-            //                                    )
-            //                                );
-            //Assert.IsNotNull(returnValue);
-            Assert.IsTrue(0 < returnValue.Count);
-            MessagePing retrievedMessage = returnValue[0];
-            Assert.IsTrue(dummyMessage.Id == retrievedMessage.Id);
+            #region Test Operations
+            callResult = testSubject.ListConversationRoot(source);
+            #endregion
+
+            #region Assert Operation Result
+            CollectionAssert.AllItemsAreNotNull(callResult);
+            #endregion
+
+        }
+
+        [TestMethod]
+        public void ValuePresentInDataRetrieved()
+        {
+            #region Test Setup
+            List<PingerProfile> callResult;
+            PingerProfile individualValue;
+            string source = "+919840200524";
+            testSubject = new WorkerProcess(repoInstance.Object, membershipInstance.Object, profileInstance.Object);
+            #endregion
+
+            #region Test Operations
+            callResult = testSubject.ListConversationRoot(source);
+            individualValue = callResult[0];
+            #endregion
+
+            #region Assert Operation Result
+            Assert.IsTrue(!String.IsNullOrEmpty(individualValue.PingerImage));
+            #endregion
+        }
+
+        [TestMethod]
+        public void ListConversationRootReportsFailure()
+        {
+            #region Test Setup
+            List<PingerProfile> callResult;
+            string source = "+919840200527";
+            //TODO: Properly instantiate the WorkerProcess
+            testSubject = new WorkerProcess(repoInstance.Object, membershipInstance.Object, profileInstance.Object);
+            #endregion
+
+            #region Test Operations
+            callResult = testSubject.ListConversationRoot(source);
+            int actualCount = conversationGroups.Where<MessagePing>(passedExpression).Count<MessagePing>();
+            #endregion
+
+            #region Assert Operation Result
+            Assert.IsTrue(actualCount != callResult.Count);
             #endregion
         }
 
