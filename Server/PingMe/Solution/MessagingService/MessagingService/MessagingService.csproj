@@ -83,10 +83,12 @@
     <Compile Include="IMembershipService.cs" />
     <Compile Include="IProfileService.cs" />
     <Compile Include="IWorkerProcess.cs" />
+    <Compile Include="MembershipService.cs" />
     <Compile Include="MessengerServiceFacade.svc.cs">
       <DependentUpon>MessengerServiceFacade.svc</DependentUpon>
     </Compile>
     <Compile Include="IMessengerServiceFacade.cs" />
+    <Compile Include="ProfileService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WorkerProcess.cs" />
   </ItemGroup>

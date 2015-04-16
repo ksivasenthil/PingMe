@@ -2,18 +2,25 @@
 using MessagingRepository;
 using System;
 using System.Collections.Generic;
+using System.Web.Security;
 
 namespace MessagingService
 {
     public class MessengerServiceFacade : IMessengerServiceFacade
     {
         internal IWorkerProcess postSorter;
+        internal IMembershipService membershipHandle;
+        internal IProfileService profileHandle;
 
         public MessengerServiceFacade()
         {
             //postSorter = postmaster;
             //TODO: Properly instantiate the WorkerProcess
-            postSorter = new WorkerProcess(new MessagingContext("Kalanjiyam"), null, null);
+
+            membershipHandle = new MembershipService();
+            profileHandle = new ProfileService();
+
+            postSorter = new WorkerProcess(new MessagingContext("Kalanjiyam"), membershipHandle, profileHandle);
         }
 
         #region Service Contract Method Implementation
@@ -47,12 +54,12 @@ namespace MessagingService
             return messagesForMe;
         }
 
-        public List<string> Conversation(string source)
+        public List<PingerProfile> Conversation(string source)
         {
-            List<string> myConversations = new List<string>();
+            List<PingerProfile> myConversations = new List<PingerProfile>();
             try
             {
-                myConversations = null; //postSorter.ListConversationRoot(source);
+                myConversations = postSorter.ListConversationRoot(source);
             }
             catch (Exception ex)
             {
