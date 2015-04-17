@@ -175,6 +175,26 @@ namespace MessagingService.Test
             #endregion
         }
 
+        [TestMethod]
+        public void SourceAndDestinationAreNotSame()
+        {
+            #region Setup for test
+            testSubject = new WorkerProcess(repoInstance.Object, null, null);
+            MessagePing testData = new MessagePing()
+            {
+                Source = "+919840200524",
+                Destination = "+919840200524",
+                Message = "Hello!",
+                MessageSentUTC = DateTime.UtcNow
+            };
+            #endregion
+
+            #region Test and Assert
+            bool postResult = testSubject.PostMessage(testData);
+            Assert.IsFalse(postResult);
+            #endregion
+        }
+
         [ClassCleanup]
         public static void ClearSetups()
         {

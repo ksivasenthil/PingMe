@@ -36,10 +36,14 @@ namespace MessagingService
             bool continueProcessingPostValidation = ValidatePostedMessage(messageDetails, out validationSummary);
             DateTime UtcTimeReference = DateTime.UtcNow;
 
+            //Test it is not a loopback message
+            bool isNotLoopBack = messageDetails.Source != messageDetails.Destination;
+
             //Refresh the recieve time always
             messageDetails.MessageRecievedUTC = UtcTimeReference;
 
             bool dateRangeValidation = continueProcessingPostValidation &&
+                                        isNotLoopBack &&
                                         UtcTimeReference.AddDays(-7) <= messageDetails.MessageSentUTC &&
                                         messageDetails.MessageSentUTC <= UtcTimeReference &&
                                         messageDetails.MessageRecievedUTC > messageDetails.MessageSentUTC;
