@@ -15,8 +15,21 @@
     margin: 0px 2px 0px 3px;
 }
 
+.picture_host {
+    width: 30%;
+}
+
+.content_host{
+    width: 65%;
+}
+
 .clear_layout_sets {
     clear: both;
+}
+
+.messages_host {
+    height: 90%;
+    overflow:auto;
 }
 
 ul.clear_circles_in_list {
@@ -43,13 +56,13 @@ li.clear_circles_in_list {
 
 .box_for_source {
     border: dashed 1px black;
-    height: 55px;
+    height: 65px;
     width: 93%;
 }
 
 .contact_image_size {
-    width: 80%;
-    height: 80%;
+    width: 45px;
+    height: 55px;
     border: solid 1px black;
     margin: 3px 3px 3px 3px;
 }
@@ -120,4 +133,13 @@ a.small_link {
 #message_send {
     margin: 1px 1px 1px 1px;
     height: 35px;
+}
+
+a.prominent_link {
+    text-decoration: none;
+    text-decoration-color: none;
+    color: none;
+    cursor: default;
+    font-size: 16px;
+    font-family: 'Microsoft Sans Serif', sans-serif;
 }

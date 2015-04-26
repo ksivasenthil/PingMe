@@ -9,7 +9,7 @@
 var pingBehaviors = (function () {
     var baseUrl = "http://localhost:61982/MessengerServiceFacade.svc";
     //baseUrl: "http://localhost/FamilyMessenger/MessengerServiceFacade.svc",
-    var universalSource = "+919941841903";
+    var universalSource = "+919840200524";
     var arrayNamespace = "http://schemas.microsoft.com/2003/10/Serialization/Arrays";
     var messageNamespace = 'http://schemas.datacontract.org/2004/07/MessagingEntities';
     var TN_MESSAGE_RESULT = "FetchMessagesResult";
@@ -19,6 +19,12 @@ var pingBehaviors = (function () {
     var TN_MESSAGE_SOURCE = "Source";;
     var TN_MESSAGE_SENT_UTC = "MessageSentUTC";
     var TN_MESSAGE_RECIEVED_UTC = "MessageRecievedUTC";
+    var TN_CONVERSATION_RESULT = 'ConversationResult';
+    var TN_PINGER_PROFILE = 'PingerProfile';
+    var TN_PINGER_SOURCE = 'PingerSource';
+    var TN_PINGER_PROFILE_IMAGE = 'PingerImage';
+    var TN_PINGER_DESTINATION = 'PingerDestination';
+    var TN_PINGER_LAST_MESSAGE = 'LastMessage';
     var padNumber = function (param, numberOfZeroes) {
         numberOfZeroes = (typeof numberOfZeroes === 'undefined') ? 1 : numberOfZeroes;
         var paddedZeroes = "";
@@ -59,15 +65,20 @@ var pingBehaviors = (function () {
                             "pings": []
 
                         };
-                        var conversationResult = $(xmlHttpResponse.responseXML).find('ConversationResult')[0];
-                        var conversations = conversationResult.getElementsByTagNameNS(arrayNamespace, 'string');
+                        var conversationResult = $(xmlHttpResponse.responseXML).find(TN_CONVERSATION_RESULT)[0];
+                        var conversations = conversationResult.getElementsByTagNameNS(messageNamespace, TN_PINGER_PROFILE);
                         $(conversations).each(function (index) {
-                            var shouldIAdd = '' != $(this).text() && null !== $(this).text();
+                            var pingerDestination = $(this.getElementsByTagNameNS(messageNamespace, TN_PINGER_DESTINATION)[0]).text();
+                            var pingerImage = $(this.getElementsByTagNameNS(messageNamespace, TN_PINGER_PROFILE_IMAGE)[0]).text();
+                            var pingerLastMessage = $(this.getElementsByTagNameNS(messageNamespace, TN_PINGER_LAST_MESSAGE)[0]).text();
+
+                            var shouldIAdd = '' != pingerDestination && null !== pingerDestination;
                             if (shouldIAdd) {
                                 displayConversation.pings.push({
                                     "Source": universalSource,
-                                    "Destination": $(this).text(),
-                                    "last_message": "..."
+                                    "Destination": pingerDestination,
+                                    "last_message": pingerLastMessage,
+                                    "ProfileImage": pingerImage
                                 });
                             }
                         });

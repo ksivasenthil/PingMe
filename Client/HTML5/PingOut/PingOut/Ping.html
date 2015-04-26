@@ -2,7 +2,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title>Ping Client</title>
-    <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+    <!--<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.3.min.js"></script>-->
+    <script type="text/javascript" src="Scripts/jquery-2.1.3.min.js"></script>
     <script type="text/javascript" src="Scripts/mustache.min.js"></script>
     <script type="text/javascript" src="Scripts/Ping.js"></script>
     <link type="text/css" href="Style/Ping.css" rel="stylesheet" />
@@ -12,24 +13,26 @@
 
     </div>
     <div id="conversationsList" class="hide">
-        <ul class="clear_circles_in_list">
-            {{#pings}}
-            <li class="clear_circles_in_list box_for_source">
-                <div class="flat_layout_left">
-                    <img src="#" class="contact_image_size" />
-                </div>
-                <div class="flat_layout_left">
-                    <div class="small_margin_vertical">
-                        <a href="#" onclick="javascript: pingBehaviors.loadMessages('{{Source}}','{{Destination}}');">{{Destination}}</a>
+        <div class="messages_host">
+            <ul class="clear_circles_in_list">
+                {{#pings}}
+                <li class="clear_circles_in_list box_for_source">
+                    <div class="flat_layout_left picture_host">
+                        <img src="{{ProfileImage}}" class="contact_image_size" />
                     </div>
-                    <div class="small_margin_vertical">
-                        <span>{{last_message}}</span>
+                    <div class="flat_layout_left content_host">
+                        <div class="small_margin_vertical">
+                            <a href="#" onclick="javascript: pingBehaviors.loadMessages('{{Source}}','{{Destination}}');">{{Destination}}</a>
+                        </div>
+                        <div class="small_margin_vertical">
+                            <span>{{last_message}}</span>
+                        </div>
                     </div>
-                </div>
-            </li>
-            {{/pings}}
-        </ul>
-        <a id="startConversation" onclick="javascript: pingBehaviors.invokeNewConversation();" class="small_link">Start Conversation</a>
+                </li>
+                {{/pings}}
+            </ul>
+        </div>
+        <a id="startConversation" onclick="javascript: pingBehaviors.invokeNewConversation();" class="prominent_link small_margin">Start Conversation</a>
     </div>
     <div id="newPing" class="hide">
         <div class="centerVertically">
