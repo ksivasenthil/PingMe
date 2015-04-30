@@ -3,6 +3,13 @@
 
 param($appConfigPath = $null)
 
+#Reset the PowershellISE configuration paths
+Add-Type -AssemblyName System.Configuration
+[Configuration.ConfigurationManager].GetField("s_initState","NonPublic,Static").SetValue($null,0)
+[Configuration.ConfigurationManager].GetField("s_configSystem","NonPublic,Static").SetValue($null,$null)
+([Configuration.ConfigurationManager].Assembly.GetTypes() | where {$_.FullName -eq "System.Configuration.ClientConfigPaths"})[0].GetField("s_current","NonPublic,Static").SetValue($null,$null)
+
+
 #App config path have to be set before loading System.Web.dll
 [System.AppDomain]::CurrentDomain.SetData("APP_CONFIG_FILE", $appConfigPath)
 
@@ -84,8 +91,8 @@ function global:Set-ProfileProperties($login=$(throw "-login is required"), $pro
 # SIG # Begin signature block
 # MIIFuQYJKoZIhvcNAQcCoIIFqjCCBaYCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUY9rQwA2ElmOGd1CjEoj7jXfk
-# gPegggNCMIIDPjCCAiqgAwIBAgIQRoL/U48ybrREjFOtpAUQoTAJBgUrDgMCHQUA
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUSnQzWLFzgF5sUCP0+W+StaUh
+# SLGgggNCMIIDPjCCAiqgAwIBAgIQRoL/U48ybrREjFOtpAUQoTAJBgUrDgMCHQUA
 # MCwxKjAoBgNVBAMTIVBvd2VyU2hlbGwgTG9jYWwgQ2VydGlmaWNhdGUgUm9vdDAe
 # Fw0xNTA0MDUwODE4NTBaFw0zOTEyMzEyMzU5NTlaMBoxGDAWBgNVBAMTD1Bvd2Vy
 # U2hlbGwgVXNlcjCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAJqhx6JB
@@ -106,11 +113,11 @@ function global:Set-ProfileProperties($login=$(throw "-login is required"), $pro
 # EyFQb3dlclNoZWxsIExvY2FsIENlcnRpZmljYXRlIFJvb3QCEEaC/1OPMm60RIxT
 # raQFEKEwCQYFKw4DAhoFAKB4MBgGCisGAQQBgjcCAQwxCjAIoAKAAKECgAAwGQYJ
 # KoZIhvcNAQkDMQwGCisGAQQBgjcCAQQwHAYKKwYBBAGCNwIBCzEOMAwGCisGAQQB
-# gjcCARUwIwYJKoZIhvcNAQkEMRYEFKNKtLMLMmANnh6wSayvT/R/5Og7MA0GCSqG
-# SIb3DQEBAQUABIIBAAhDy6eLZ4BP4/mO15nKdHtsUGFXJF9IHxFP3dUfhS7aRS3u
-# sl7t19HkNj+HwjnL20SAFI6vh5FTGZn98ocp+qLSX95tPykWdBDZu5fEsgStCz1V
-# l54PbWO3CI7KIxDdCsSR2jsGGPOZtSdoBhi8tSbk7tCQi5ycxf5iadh+HX7qu9Ms
-# eUceHgsWsoknZiO3GknIXnfyD68sD7zzKGOqjaXKiOfNN5VUhRJDKBibW7tFBJO3
-# AnKw09FkhvHpXWAl1W0FSxVEC82dCOC2/8XcFY0EDitoBrrlW3LaSipZA/YNV+bm
-# KG5jJRe0Q3f7shdhaM5uRnnFqgGZaYwZdQ+pUqA=
+# gjcCARUwIwYJKoZIhvcNAQkEMRYEFB/5CvLMU+tmuDe+sR69bQDuWHHlMA0GCSqG
+# SIb3DQEBAQUABIIBAJDgKUOo8MUZeAmYQvN+bfAcD6/+6BDBlK91p2kfLcJqY8Q0
+# 5HEDBDdGBiBratx7RZyo+NgEhYUk4zvJYCcQEhsO3FoEYbkb/wFI+HoKOUAW9yR+
+# 4XUM81E4b5Ku7nxhSJOb2pPohIO+IGBuf7tq4Xc//LAI5CcBxl2TVeL7s24srT74
+# Of99d77A97rFpLV3SIXVS4OJo7Ik42oMmhEfLroslpsds+t3gS7ZS6qEfmDSP4tT
+# T3EDCZOjYN+Q5/t+1M12ZBc3Emwx8/3BV8tjw7TODzfinTJ0pdwIfhvoEPBadpIO
+# TzAuIViMvfpZQZcSMrKOilJkaGA7Tqd66loS39k=
 # SIG # End signature block
