@@ -8,6 +8,16 @@
     $('#btnRefresh').on('click', function () {
         pingBehaviors.loadConversations();
     });
+    //$(document.body).on('click', '#detailPings', function () {
+    //    alert('called');
+    //    var source = $(this).attr('data-Source');
+    //    var destination = $(this).attr('data-Destination');
+    //    pingBehaviors.loadMessages(source, destination);
+    //    return false;
+    //});
+    $(document.body).on('click', '#message_send', function () {
+        pingBehaviors.pingMessage();
+    });
 });
 var pingBehaviors = (function () {
     var baseUrl = "http://localhost:61982/MessengerServiceFacade.svc";
@@ -17,13 +27,17 @@ var pingBehaviors = (function () {
     var messageNamespace = 'http://schemas.datacontract.org/2004/07/MessagingEntities';
     var TN_MESSAGE_RESULT = "FetchMessagesResult";
     var TN_MESSAGE_STRUCTURE = "MessagePing";
+    var TN_MESSAGE_DESTINED_PINGER_PROFILE = 'DestinedUserProfile';
+    var TN_MESSAGE_DESTINED_PINGER_IMAGE = 'PingerImage';
+    var TN_MESSAGE_DESTINED_PINGER = 'Destination';
     var TN_MESSAGE_ID = "Id";
     var TN_MESSAGE_TEXT = "Message";
     var TN_MESSAGE_SOURCE = "Source";;
     var TN_MESSAGE_SENT_UTC = "MessageSentUTC";
     var TN_MESSAGE_RECIEVED_UTC = "MessageRecievedUTC";
     var TN_CONVERSATION_RESULT = 'ConversationResult';
-    var TN_PINGER_PROFILE = 'PingerProfile';
+    var TN_PING_LIST = 'PingList';
+    var TN_PINGER_DESTINATION_PROFILE = 'DestinationPingerProfile';
     var TN_PINGER_SOURCE = 'PingerSource';
     var TN_PINGER_PROFILE_IMAGE = 'PingerImage';
     var TN_PINGER_DESTINATION = 'PingerDestination';
@@ -66,24 +80,25 @@ var pingBehaviors = (function () {
                 data: soapRequest,
                 processData: true,
                 complete: function (xmlHttpResponse, status) {
-
                     if (status == 'success') {
                         var displayConversation = {
                             "pings": []
 
                         };
                         var conversationResult = $(xmlHttpResponse.responseXML).find(TN_CONVERSATION_RESULT)[0];
-                        var conversations = conversationResult.getElementsByTagNameNS(messageNamespace, TN_PINGER_PROFILE);
+                        var conversations = conversationResult.getElementsByTagNameNS(messageNamespace, TN_PING_LIST);
                         $(conversations).each(function (index) {
+                            var pingerProfile = this.getElementsByTagNameNS(messageNamespace, TN_PINGER_DESTINATION_PROFILE)[0];
+                            var pingerSource = $(this.getElementsByTagNameNS(messageNamespace, TN_PINGER_SOURCE)[0]).text();
                             var pingerDestination = $(this.getElementsByTagNameNS(messageNamespace, TN_PINGER_DESTINATION)[0]).text();
-                            var pingerImage = $(this.getElementsByTagNameNS(messageNamespace, TN_PINGER_PROFILE_IMAGE)[0]).text();
-                            var pingerLastMessage = $(this.getElementsByTagNameNS(messageNamespace, TN_PINGER_LAST_MESSAGE)[0]).text();
+                            var pingerImage = $(pingerProfile.getElementsByTagNameNS(messageNamespace, TN_PINGER_PROFILE_IMAGE)[0]).text();
+                            var pingerLastMessage = $(pingerProfile.getElementsByTagNameNS(messageNamespace, TN_PINGER_LAST_MESSAGE)[0]).text();
 
                             var shouldIAdd = '' != pingerDestination && null !== pingerDestination;
                             if (shouldIAdd) {
                                 displayConversation.pings.push({
-                                    "Source": universalSource,
-                                    "Destination": pingerDestination,
+                                    "Source": universalSource == pingerSource ? pingerSource : pingerDestination,
+                                    "Destination": universalSource == pingerSource ? pingerDestination : pingerSource,
                                     "last_message": pingerLastMessage,
                                     "ProfileImage": pingerImage
                                 });
@@ -115,7 +130,7 @@ var pingBehaviors = (function () {
             var target = $(txtPingTarget).val();
             var message = $(txtPing).val();
 
-            postMessage(source, target, message);
+            this.postPing(source, target, message);
         },
         loadMessages: function (left, right) {
             var source = left;
@@ -140,9 +155,10 @@ var pingBehaviors = (function () {
                         var messagesResult = $(xmlHttpResponse.responseXML).find(TN_MESSAGE_RESULT)[0];
                         var allMessages = messagesResult.getElementsByTagNameNS(messageNamespace, TN_MESSAGE_STRUCTURE);
                         var displayMessage = {
-                            "pings": []
-
+                            "pings": [],
+                            "profile": []
                         };
+                        var profileIfNeverPinged = '';
                         $(allMessages).each(function (index) {
                             var shouldIAdd = 0 < $(this).children().length;
                             if (shouldIAdd) {
@@ -151,6 +167,7 @@ var pingBehaviors = (function () {
                                 var source = $(this.getElementsByTagNameNS(messageNamespace, TN_MESSAGE_SOURCE)[0]).text();
                                 var timeSent = getLocalTimeFromUTC($(this.getElementsByTagNameNS(messageNamespace, TN_MESSAGE_SENT_UTC)[0]).text());
                                 var timeRecieved = getLocalTimeFromUTC($(this.getElementsByTagNameNS(messageNamespace, TN_MESSAGE_RECIEVED_UTC)[0]).text());
+
                                 displayMessage.pings.push({
                                     "message_id": message_id,
                                     "message": message,
@@ -158,8 +175,27 @@ var pingBehaviors = (function () {
                                     "sent_time": isNaN(timeSent.getDate()) ? '*' : getTimeStampPrintFormat(timeSent),
                                     "recieved_time": isNaN(timeRecieved.getDate()) ? '*' : getTimeStampPrintFormat(timeRecieved)
                                 });
+
+                                var destinedPingerProfile = this.getElementsByTagNameNS(messageNamespace, TN_MESSAGE_DESTINED_PINGER_PROFILE)[0];
+                                var pingerProfile = $(destinedPingerProfile.getElementsByTagNameNS(messageNamespace, TN_MESSAGE_DESTINED_PINGER_IMAGE)[0]).text();
+                                var destinationPinger = $(this.getElementsByTagNameNS(messageNamespace, TN_MESSAGE_DESTINED_PINGER)[0]).text();
+                                var shouldISetDestinedUserProfile = 0 >= displayMessage.profile.length && right == destinationPinger;
+                                if (shouldISetDestinedUserProfile) {
+                                    displayMessage.profile.push({
+                                        "profile_picture": pingerProfile,
+                                        "destined_user": destinationPinger
+                                    });
+                                }
+                                profileIfNeverPinged = pingerProfile;
                             }
                         });
+                        var stillEmptyProfile = 0 >= displayMessage.profile.length;
+                        if (stillEmptyProfile) {
+                            displayMessage.profile.push({
+                                "profile_picture": profileIfNeverPinged,
+                                "destined_user": right
+                            });
+                        }
 
                         var areThereMessages = 0 < displayMessage.pings.length;
                         if (areThereMessages) {
@@ -169,6 +205,7 @@ var pingBehaviors = (function () {
                             template = $(newPing).html();
                             formattedMarkup = Mustache.render(template, displayMessage);
                         }
+
                         $('#contentHost').html(formattedMarkup);
                     } else {
                         alert('Not a great news :(');
@@ -177,7 +214,7 @@ var pingBehaviors = (function () {
                 contentType: "text/xml; charset=\"utf-8\""
             });
         },
-        postMessage: function (source, target, message) {
+        postPing: function (source, target, message) {
             var soapRequest = '<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Body><PostMessage xmlns="http://vosspace.com/FamilyConnect/MessengerService"><messageDetails xmlns:a="http://schemas.datacontract.org/2004/07/MessagingEntities" xmlns:i="http://www.w3.org/2001/XMLSchema-instance"><a:Id>00000000-0000-0000-0000-000000000000</a:Id><a:Asset i:nil="true"/><a:Destination>[Destination]</a:Destination><a:Message>[Message]</a:Message><a:MessageRecievedUTC i:nil="true"/><a:MessageSentUTC i:nil="false">[SentUTC]</a:MessageSentUTC><a:Source>[Source]</a:Source></messageDetails></PostMessage></s:Body></s:Envelope>';
             var now = new Date();
             soapRequest = soapRequest.replace('[Destination]', target).replace('[Source]', source).replace('[Message]', message).replace('[SentUTC]', now.getUTCFullYear() + "-" + padNumber(now.getUTCMonth() + 1) + "-" + padNumber(now.getUTCDate()) + "T" + padNumber(now.getUTCHours()) + ":" + padNumber(now.getUTCMinutes()) + ":" + padNumber(now.getUTCSeconds()) + "." + padNumber(now.getUTCMilliseconds(), 2));
@@ -207,8 +244,11 @@ var pingBehaviors = (function () {
                 contentType: "text/xml; charset=\"utf-8\""
             });
         },
-        pingMessage: function (target) {
-            
-        },
+        pingMessage: function () {
+            var target = $('#destinedPinger').text().trim();
+            var message = $('#message_text').val();
+            this.postPing(universalSource, target, message);
+            this.loadMessages(universalSource, target);
+        }
     };
 })();

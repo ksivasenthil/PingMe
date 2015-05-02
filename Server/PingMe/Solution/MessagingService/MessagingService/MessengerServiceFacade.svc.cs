@@ -54,9 +54,9 @@ namespace MessagingService
             return messagesForMe;
         }
 
-        public List<PingerProfile> Conversation(string source)
+        public List<PingList> Conversation(string source)
         {
-            List<PingerProfile> myConversations = new List<PingerProfile>();
+            List<PingList> myConversations = new List<PingList>();
             try
             {
                 myConversations = postSorter.ListConversationRoot(source);

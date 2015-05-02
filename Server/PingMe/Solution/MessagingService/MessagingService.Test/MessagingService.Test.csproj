@@ -67,10 +67,11 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="ConversationFeatureTests.cs" />
+    <Compile Include="PingListTests.cs" />
     <Compile Include="SimpleComissioningTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TimeStampFeatureTests.cs" />
+    <Compile Include="PingTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">

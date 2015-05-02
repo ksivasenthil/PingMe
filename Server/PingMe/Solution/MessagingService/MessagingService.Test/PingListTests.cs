@@ -13,7 +13,7 @@ using System.Web.Security;
 namespace MessagingService.Test
 {
     [TestClass]
-    public class ConversationFeatureTests
+    public class PingListTests
     {
         private static Mock<MessagingContext> repoInstance;
         private static Mock<DbSet<MessagePing>> entInstance;
@@ -147,25 +147,7 @@ namespace MessagingService.Test
         public void ListConversationRootSucceeds()
         {
             #region Test Setup
-            List<PingerProfile> callResult;
-            string source = "+919840200524";
-            testSubject = new WorkerProcess(repoInstance.Object, membershipInstance.Object, profileInstance.Object);
-            #endregion
-
-            #region Test Operations
-            callResult = testSubject.ListConversationRoot(source);
-            #endregion
-
-            #region Assert Operation Result
-            Assert.IsNotNull(callResult);
-            #endregion
-        }
-
-        [TestMethod]
-        public void CheckConversationProfileValues()
-        {
-            #region Test Setup
-            List<PingerProfile> callResult;
+            List<PingList> callResult;
             string source = "+919840200524";
             testSubject = new WorkerProcess(repoInstance.Object, membershipInstance.Object, profileInstance.Object);
             #endregion
@@ -177,36 +159,33 @@ namespace MessagingService.Test
             #region Assert Operation Result
             CollectionAssert.AllItemsAreNotNull(callResult);
             #endregion
-
         }
 
         [TestMethod]
-        public void ValuePresentInDataRetrieved()
+        public void CheckConversationProfileValues()
         {
             #region Test Setup
-            List<PingerProfile> callResult;
-            PingerProfile individualValue;
+            List<PingList> callResult;
             string source = "+919840200524";
             testSubject = new WorkerProcess(repoInstance.Object, membershipInstance.Object, profileInstance.Object);
             #endregion
 
             #region Test Operations
             callResult = testSubject.ListConversationRoot(source);
-            individualValue = callResult[0];
             #endregion
 
             #region Assert Operation Result
-            Assert.IsTrue(!String.IsNullOrEmpty(individualValue.PingerImage));
+            Assert.IsTrue(!String.IsNullOrEmpty(callResult.First<PingList>().DestinationPingerProfile.PingerImage));
             #endregion
+
         }
 
         [TestMethod]
         public void ListConversationRootReportsFailure()
         {
             #region Test Setup
-            List<PingerProfile> callResult;
+            List<PingList> callResult;
             string source = "+919840200527";
-            //TODO: Properly instantiate the WorkerProcess
             testSubject = new WorkerProcess(repoInstance.Object, membershipInstance.Object, profileInstance.Object);
             #endregion
 

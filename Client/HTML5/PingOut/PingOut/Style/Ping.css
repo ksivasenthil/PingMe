@@ -139,6 +139,7 @@ a.small_link {
 #message_send {
     margin: 1px 1px 1px 1px;
     height: 35px;
+    vertical-align: top;
 }
 
 a.prominent_link {
@@ -154,4 +155,8 @@ a.prominent_link {
     height: 40px;
     font-family: Courier New, Courier, monospace;
     font-size: 20px;
+}
+
+.destinedPingerProfile{
+    height: 25%;
 }

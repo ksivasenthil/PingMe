@@ -8,6 +8,7 @@ using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Web.Security;
 
 namespace MessagingService.Test
 {
@@ -16,6 +17,9 @@ namespace MessagingService.Test
     {
         private static Mock<MessagingContext> repoInstance;
         private static Mock<DbSet<MessagePing>> entInstance;
+        private static Mock<IMembershipService> membershipInstance;
+        private static Mock<IProfileService> profileInstance;
+        private static Mock<MembershipUser> userInstance;
         private static TestContext testContextInstance;
         private static MessagePing dummyMessage, messagesDestination;
         private static IQueryable<MessagePing> messageSearchResult, conversationGroups;
@@ -60,10 +64,22 @@ namespace MessagingService.Test
             };
             messageSearchResult = new List<MessagePing>() { dummyMessage, messagesDestination }.AsQueryable<MessagePing>();
             conversationGroups = new List<MessagePing>() { messagesDestination }.AsQueryable<MessagePing>();
+            membershipInstance = new Mock<IMembershipService>();
+            profileInstance = new Mock<IProfileService>();
+            userInstance = new Mock<MembershipUser>();
             entInstance = new Mock<DbSet<MessagePing>>();
             repoInstance = new Mock<MessagingContext>(new string[] { "Kalanjiyam" });
+
+            userInstance.Setup(usr => usr.ProviderUserKey).Returns(recordId);
+            membershipInstance.Setup(mem => mem.CreateUser(It.IsAny<string>(), It.IsAny<string>(),
+                                                            It.IsAny<string>(), It.IsAny<string>(),
+                                                            It.IsAny<string>(), It.IsAny<bool>())).
+                                Returns(MembershipCreateStatus.Success);
+            membershipInstance.Setup(mem => mem.GetUser(It.IsAny<string>())).Returns(userInstance.Object);
+            profileInstance.Setup(pro => pro.GetPropertyValue(It.IsAny<string>(), It.IsAny<string>())).Returns("http://www.google.com");
+
+            
             repoInstance.Setup(ent => ent.FindOne(It.IsAny<object[]>())).Returns(dummyMessage);
-            repoInstance.Setup(ent => ent.Add(It.IsAny<MessagePing>())).Returns(dummyMessage);
             /*
              * NOTE: - Very Important notice to mock expressions in Moq.
              * The code does not do proper set up for the scenario described here
@@ -130,14 +146,14 @@ namespace MessagingService.Test
         public void PostMessageSucceeds()
         {
             #region Setup for test
-            //TODO: Properly instantiate the WorkerProcess
-            testSubject = new WorkerProcess(repoInstance.Object, null, null);
+            testSubject = new WorkerProcess(repoInstance.Object, membershipInstance.Object, profileInstance.Object);
             bool returnValue;
+            repoInstance.Setup(ent => ent.Add(It.IsAny<MessagePing>())).Returns(dummyMessage);
             #endregion
 
             #region Test
             returnValue = testSubject.PostMessage(dummyMessage);
-            repoInstance.Verify(ent => ent.Add(dummyMessage));
+            repoInstance.Verify(ent => ent.Add(dummyMessage),Times.AtLeastOnce,"Was called lesser than once");
             Assert.IsTrue(returnValue);
             #endregion
         }
@@ -146,10 +162,10 @@ namespace MessagingService.Test
         public void FetchMessageSucceds()
         {
             #region Setup for test
-            //TODO: Properly instantiate the WorkerProcess
-            testSubject = new WorkerProcess(repoInstance.Object, null, null);
+            testSubject = new WorkerProcess(repoInstance.Object, membershipInstance.Object, profileInstance.Object);
             List<MessagePing> returnValue;
             Expression<Func<MessagePing, bool>> expr = d => d.Destination == defaultDestination;
+            repoInstance.Setup(ent => ent.Add(It.IsAny<MessagePing>())).Returns(dummyMessage);
             #endregion
 
             #region Test
@@ -179,7 +195,8 @@ namespace MessagingService.Test
         public void SourceAndDestinationAreNotSame()
         {
             #region Setup for test
-            testSubject = new WorkerProcess(repoInstance.Object, null, null);
+            testSubject = new WorkerProcess(repoInstance.Object, membershipInstance.Object, profileInstance.Object);
+            repoInstance.Setup(ent => ent.Add(It.IsAny<MessagePing>())).Returns(dummyMessage);
             MessagePing testData = new MessagePing()
             {
                 Source = "+919840200524",
@@ -200,6 +217,9 @@ namespace MessagingService.Test
         {
             entInstance = null;
             repoInstance = null;
+            membershipInstance = null;
+            profileInstance = null;
+            userInstance = null;
         }
     }
 }

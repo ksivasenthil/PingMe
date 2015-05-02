@@ -39,6 +39,10 @@ namespace MessagingEntities
         [DataMember]
         public Nullable<DateTime> MessageRecievedUTC { get; set; }
 
+        [NotMapped]
+        [DataMember]
+        public PingerProfile DestinedUserProfile { get; set; }
+
         public int CompareTo(object otherObject)
         {
             bool otherObjectIsMessagePing = otherObject is MessagePing;

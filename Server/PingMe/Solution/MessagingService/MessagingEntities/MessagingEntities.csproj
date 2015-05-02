@@ -45,6 +45,7 @@
     <Compile Include="BaseEntity.cs" />
     <Compile Include="MessagePing.cs" />
     <Compile Include="PingerProfile.cs" />
+    <Compile Include="PingList.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

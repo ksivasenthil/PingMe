@@ -16,7 +16,7 @@ namespace MessagingService
         private MessagingContext Storage;
         private IMembershipService MembershipService;
         private IProfileService ProfileService;
-
+        private const string USER_PROFILE_PICTURE = "ProfilePicture";
         internal WorkerProcess(DbContext storageInstance, IMembershipService membershipInstance, IProfileService profileInstance)
         {
             this.Storage = storageInstance as MessagingContext;
@@ -76,42 +76,34 @@ namespace MessagingService
             return operationResult;
         }
 
-        public List<PingerProfile> ListConversationRoot(string source)
+        public List<PingList> ListConversationRoot(string source)
         {
-            List<PingerProfile> conversationRoot = null;
+            List<PingList> conversationRoot = null;
             bool correctInput = !String.IsNullOrEmpty(source);
             if (correctInput)
             {
-                Expression<Func<MessagePing, bool>> criteria = d => d.Source == source;
-                IEnumerable<IGrouping<string, MessagePing>> intermediateResult = Storage.Where(criteria).GroupBy<MessagePing, string>(a => { return a.Destination; });
-                bool conversationsAreAvailable = null != intermediateResult && 0 < intermediateResult.Count();
-                if (conversationsAreAvailable)
+                Expression<Func<MessagePing, bool>> outGoingCriteria = d => d.Source == source;
+                Expression<Func<MessagePing, bool>> inComingCriteria = d => d.Destination == source;
+                IEnumerable<IGrouping<string, MessagePing>> outGoingPings = Storage.Where(outGoingCriteria).OrderBy<MessagePing, DateTime?>(a=>a.MessageSentUTC).GroupBy<MessagePing, string>(a => { return a.Destination; });
+                IEnumerable<IGrouping<string, MessagePing>> inComingPings = Storage.Where(inComingCriteria).OrderBy<MessagePing, DateTime?>(a => a.MessageSentUTC).GroupBy<MessagePing, string>(a => { return a.Source; });
+
+                conversationRoot = BuildList(outGoingPings, source, true);
+                var inCompingPingList = BuildList(inComingPings, source, false);
+                var differentialPingList = new List<PingList>();
+                foreach (PingList candidatePing in inCompingPingList)
                 {
-                    conversationRoot = new List<PingerProfile>();
-
-                    MessagePing latestPing;
-                    MembershipUser destinedUser;
-                    string userImage;
-
-                    foreach (IGrouping<string, MessagePing> destination in intermediateResult)
+                    bool pingersAreOnlyIncomingWithNoReplies = true;
+                    foreach (PingList basedOutPing in conversationRoot)
                     {
-                        latestPing = destination.First<MessagePing>();
-                        destinedUser = MembershipService.GetUser(latestPing.Destination);
-                        userImage = ProfileService.GetPropertyValue(destinedUser.UserName, "ProfilePicture") as string;
-
-                        conversationRoot.Add(new PingerProfile()
-                        {
-                            PingerSource = source,
-                            PingerDestination = destination.Key,
-                            LastMessage = destination.First<MessagePing>().Message,
-                            PingerImage = userImage
-                        });
+                        //If the following condition evaluates to true, it is a conversation between the numbers
+                        pingersAreOnlyIncomingWithNoReplies &= candidatePing.PingerSource != basedOutPing.PingerDestination;
+                    }
+                    if (pingersAreOnlyIncomingWithNoReplies)
+                    {
+                        differentialPingList.Add(candidatePing);
                     }
                 }
-                else
-                {
-                    conversationRoot = new List<PingerProfile>();
-                }
+                conversationRoot.AddRange(differentialPingList);
             }
             else
             {
@@ -122,17 +114,31 @@ namespace MessagingService
 
         public List<MessagePing> FetchMessages(string source, string destination)
         {
-            List<MessagePing> searchResult = null;
+            List<MessagePing> searchResult = new List<MessagePing>();
             bool correctInput = !String.IsNullOrEmpty(destination);
             if (correctInput)
             {
                 //Conversation is the union of messages sent from you (source) to other person (destination) and 
                 //messages sent from the other person (destination) to you (source)
-                Expression<Func<MessagePing, bool>> criteria = d => (d.Destination == destination && d.Source == source) || (d.Source == destination && d.Destination == source);
+                Expression<Func<MessagePing, bool>> outGoingCriteria = d => (d.Source == source && d.Destination == destination);
+                Expression<Func<MessagePing, bool>> inComingCriteria = d => (d.Source == destination && d.Destination == source);
 
                 //Conversation should be sorted based on timestamp
-                var intermediateResult = Storage.Where(criteria).OrderBy<MessagePing, DateTime?>(d => d.MessageSentUTC);
-                searchResult = intermediateResult.ToList<MessagePing>();
+                var outGoingPings = Storage.Where(outGoingCriteria);
+                var inComingPings = Storage.Where(inComingCriteria);
+
+                searchResult = BuildPings(outGoingPings, source, true);
+                searchResult.AddRange(BuildPings(inComingPings, source, false));
+
+                bool validPingsNotAvailable = 0 >= searchResult.Count;
+
+                if (validPingsNotAvailable)
+                {
+                    searchResult = null;
+                }
+
+                searchResult = (searchResult as IEnumerable<MessagePing>).OrderBy<MessagePing, DateTime?>(d => d.MessageSentUTC).ToList<MessagePing>();
+
             }
             else
             {
@@ -147,6 +153,95 @@ namespace MessagingService
             bool simpleValidationOutcome = Validator.TryValidateObject(data, new ValidationContext(data), validationResults);
             validationSummary = validationResults as List<ValidationResult>;
             return simpleValidationOutcome;
+        }
+
+        private List<PingList> BuildList(IEnumerable<IGrouping<string, MessagePing>> pings, string pinger, bool usePingerAsSource)
+        {
+            List<PingList> conversationRoot = null;
+            bool usePingerAsDestination = !usePingerAsSource;
+            bool conversationsAreAvailable = null != pings && 0 < pings.Count();
+            if (conversationsAreAvailable)
+            {
+                conversationRoot = new List<PingList>();
+
+                MessagePing latestPing;
+                MembershipUser destinedUser;
+                string userImage = string.Empty;
+
+                foreach (IGrouping<string, MessagePing> destination in pings)
+                {
+                    latestPing = destination.Last<MessagePing>();
+                    var applicableDestination = usePingerAsDestination ? latestPing.Source : latestPing.Destination;
+                    destinedUser = MembershipService.GetUser(applicableDestination);
+                    bool destinedUserHasProfile = null != destinedUser;
+                    if (destinedUserHasProfile)
+                    {
+                        userImage = ProfileService.GetPropertyValue(destinedUser.UserName, USER_PROFILE_PICTURE) as string;
+                    }
+                    conversationRoot.Add(new PingList()
+                    {
+                        PingerSource = (usePingerAsSource) ? pinger : destination.Key,
+                        PingerDestination = (usePingerAsDestination) ? pinger : destination.Key,
+                        DestinationPingerProfile = new PingerProfile()
+                        {
+                            LastMessage = latestPing.Message,
+                            PingerImage = userImage
+                        }
+                    });
+                }
+            }
+            else
+            {
+                conversationRoot = new List<PingList>();
+            }
+            return conversationRoot;
+        }
+
+        private List<MessagePing> BuildPings(IEnumerable<MessagePing> pings, string pinger, bool usePingerAsSource)
+        {
+            List<MessagePing> searchResult = new List<MessagePing>();
+
+            #region Fetch Destined User Profile
+            MembershipUser destinedUser;
+            PingerProfile destinedUserProfile;
+            bool usePingerAsDestination = !usePingerAsSource;
+            string profilePicture;
+            foreach (var ping in pings)
+            {
+                var applicableDestination = usePingerAsDestination ? ping.Source : ping.Destination;
+                var applicableSource = usePingerAsSource ? pinger : ping.Destination;
+                destinedUser = MembershipService.GetUser(applicableDestination);
+                bool userHasProfile = null != destinedUser;
+                if (userHasProfile)
+                {
+                    profilePicture = ProfileService.GetPropertyValue(destinedUser.UserName, USER_PROFILE_PICTURE) as string;
+                    var lastMessage = pings.Where(r => r.Source == applicableSource).LastOrDefault<MessagePing>();
+                    destinedUserProfile = new PingerProfile()
+                    {
+                        PingerImage = profilePicture,
+                        LastMessage = (null != lastMessage) ? lastMessage.Message : string.Empty
+                    };
+                    searchResult.Add(new MessagePing()
+                    {
+                        Source = ping.Source,
+                        Destination = ping.Destination,
+                        Id = ping.Id,
+                        Asset = ping.Asset,
+                        Message = ping.Message,
+                        MessageRecievedUTC = ping.MessageRecievedUTC,
+                        MessageSentUTC = ping.MessageSentUTC,
+                        DestinedUserProfile = destinedUserProfile
+                    });
+                }
+            }
+            #endregion
+            bool validPingsNotAvailable = 0 >= searchResult.Count;
+
+            if (validPingsNotAvailable)
+            {
+                searchResult = new List<MessagePing>();
+            }
+            return searchResult;
         }
     }
 }
