@@ -1,4 +1,9 @@
-﻿#contentHost {
+﻿body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 14px;
+}
+
+#contentHost {
     overflow-y: auto;
     width: 250px;
     height: 333px;
@@ -19,7 +24,7 @@
     width: 30%;
 }
 
-.content_host{
+.content_host {
     width: 65%;
 }
 
@@ -29,7 +34,7 @@
 
 .messages_host {
     height: 90%;
-    overflow:auto;
+    overflow: auto;
 }
 
 ul.clear_circles_in_list {
@@ -79,7 +84,7 @@ li.clear_circles_in_list {
 .mediumTextBox {
     height: 20px;
     width: 90%;
-    font-family: Courier New, Courier, monospace;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     font-size: 12px;
     margin-right: 5px;
     margin-bottom: 5px;
@@ -87,7 +92,8 @@ li.clear_circles_in_list {
 
 .highTextBox {
     height: 40px;
-    font-family: Courier New, Courier, monospace;
+    width: 89%;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     font-size: 12px;
     margin-right: 5px;
     padding-bottom: 5px;
@@ -142,4 +148,10 @@ a.prominent_link {
     cursor: default;
     font-size: 16px;
     font-family: 'Microsoft Sans Serif', sans-serif;
+}
+
+.largeTextBox {
+    height: 40px;
+    font-family: Courier New, Courier, monospace;
+    font-size: 20px;
 }

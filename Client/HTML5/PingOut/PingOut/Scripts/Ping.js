@@ -5,6 +5,9 @@
             pingBehaviors.loadConversations();
         }
     });
+    $('#btnRefresh').on('click', function () {
+        pingBehaviors.loadConversations();
+    });
 });
 var pingBehaviors = (function () {
     var baseUrl = "http://localhost:61982/MessengerServiceFacade.svc";
@@ -38,12 +41,16 @@ var pingBehaviors = (function () {
         utcTime = utcTime.substring(0, utcTime.indexOf('.'))
         utcTime += ' UTC';
         return new Date(utcTime);
-    }
+    };
     var getTimeStampPrintFormat = function (timeStamp) {
         return padNumber(timeStamp.getDate()) + "/" + padNumber(timeStamp.getMonth() + 1) + "/" + padNumber(timeStamp.getYear() - 100) + " " + padNumber(timeStamp.getHours()) + ":" + padNumber(timeStamp.getMinutes())
-    }
+    };
+    var setUniversalSource = function () {
+        universalSource = $('#sourcePinger').val() ? $('#sourcePinger').val() : universalSource;
+    };
     return {
         loadConversations: function () {
+            setUniversalSource();
             var soapRequest = '<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Body><Conversation xmlns="http://vosspace.com/FamilyConnect/MessengerService"><source>[Source]</source></Conversation></s:Body></s:Envelope>';
             soapRequest = soapRequest.replace('[Source]', universalSource);
             var template = null;
@@ -108,34 +115,7 @@ var pingBehaviors = (function () {
             var target = $(txtPingTarget).val();
             var message = $(txtPing).val();
 
-            var soapRequest = '<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Body><PostMessage xmlns="http://vosspace.com/FamilyConnect/MessengerService"><messageDetails xmlns:a="http://schemas.datacontract.org/2004/07/MessagingEntities" xmlns:i="http://www.w3.org/2001/XMLSchema-instance"><a:Id>00000000-0000-0000-0000-000000000000</a:Id><a:Asset i:nil="true"/><a:Destination>[Destination]</a:Destination><a:Message>[Message]</a:Message><a:MessageRecievedUTC i:nil="true"/><a:MessageSentUTC i:nil="false">[SentUTC]</a:MessageSentUTC><a:Source>[Source]</a:Source></messageDetails></PostMessage></s:Body></s:Envelope>';
-            var now = new Date();
-            soapRequest = soapRequest.replace('[Destination]', target).replace('[Source]', source).replace('[Message]', message).replace('[SentUTC]', now.getUTCFullYear() + "-" + padNumber(now.getUTCMonth() + 1) + "-" + padNumber(now.getUTCDate()) + "T" + padNumber(now.getUTCHours()) + ":" + padNumber(now.getUTCMinutes()) + ":" + padNumber(now.getUTCSeconds()) + "." + padNumber(now.getUTCMilliseconds(), 2));
-            $.ajax({
-                url: baseUrl,
-                crossdomain: true,
-                headers: {
-                    "SOAPAction": '"http://vosspace.com/FamilyConnect/MessengerService/IMessengerServiceFacade/PostMessage"',
-                },
-                type: "POST",
-                dataType: "xml",
-                data: soapRequest,
-                processData: true,
-                complete: function (xmlHttpResponse, status) {
-                    if (status == 'success') {
-                        var postResult = $(xmlHttpResponse.responseXML).find('PostMessageResult')[0];
-                        var serverPostResponse = $(postResult).text();
-                        if (serverPostResponse === 'true') {
-                            alert('Success !! message posted');
-                        } else {
-                            alert('something went wrong in server :(');
-                        }
-                    } else {
-                        alert('Not a great news :(');
-                    }
-                },
-                contentType: "text/xml; charset=\"utf-8\""
-            });
+            postMessage(source, target, message);
         },
         loadMessages: function (left, right) {
             var source = left;
@@ -196,6 +176,39 @@ var pingBehaviors = (function () {
                 },
                 contentType: "text/xml; charset=\"utf-8\""
             });
+        },
+        postMessage: function (source, target, message) {
+            var soapRequest = '<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Body><PostMessage xmlns="http://vosspace.com/FamilyConnect/MessengerService"><messageDetails xmlns:a="http://schemas.datacontract.org/2004/07/MessagingEntities" xmlns:i="http://www.w3.org/2001/XMLSchema-instance"><a:Id>00000000-0000-0000-0000-000000000000</a:Id><a:Asset i:nil="true"/><a:Destination>[Destination]</a:Destination><a:Message>[Message]</a:Message><a:MessageRecievedUTC i:nil="true"/><a:MessageSentUTC i:nil="false">[SentUTC]</a:MessageSentUTC><a:Source>[Source]</a:Source></messageDetails></PostMessage></s:Body></s:Envelope>';
+            var now = new Date();
+            soapRequest = soapRequest.replace('[Destination]', target).replace('[Source]', source).replace('[Message]', message).replace('[SentUTC]', now.getUTCFullYear() + "-" + padNumber(now.getUTCMonth() + 1) + "-" + padNumber(now.getUTCDate()) + "T" + padNumber(now.getUTCHours()) + ":" + padNumber(now.getUTCMinutes()) + ":" + padNumber(now.getUTCSeconds()) + "." + padNumber(now.getUTCMilliseconds(), 2));
+            $.ajax({
+                url: baseUrl,
+                crossdomain: true,
+                headers: {
+                    "SOAPAction": '"http://vosspace.com/FamilyConnect/MessengerService/IMessengerServiceFacade/PostMessage"',
+                },
+                type: "POST",
+                dataType: "xml",
+                data: soapRequest,
+                processData: true,
+                complete: function (xmlHttpResponse, status) {
+                    if (status == 'success') {
+                        var postResult = $(xmlHttpResponse.responseXML).find('PostMessageResult')[0];
+                        var serverPostResponse = $(postResult).text();
+                        if (serverPostResponse === 'true') {
+                            alert('Success !! message posted');
+                        } else {
+                            alert('something went wrong in server :(');
+                        }
+                    } else {
+                        alert('Not a great news :(');
+                    }
+                },
+                contentType: "text/xml; charset=\"utf-8\""
+            });
+        },
+        pingMessage: function (target) {
+            
         },
     };
 })();

@@ -12,6 +12,12 @@
     <div id="contentHost">
 
     </div>
+    <div>
+        <input type="text" id="sourcePinger" class="largeTextBox small_margin " name="sourcePinger" placeholder="Source Pinger #" />
+    </div>
+    <div>
+        <button id="btnRefresh" name="btnRefresh" value="Refresh" class="highButton">Refresh</button>
+    </div>
     <div id="conversationsList" class="hide">
         <div class="messages_host">
             <ul class="clear_circles_in_list">
@@ -41,7 +47,7 @@
                     <input type="text" id="txtPingTarget" placeholder="mobile number" class="mediumTextBox" />
                 </div>
                 <div>
-                    <textarea cols="4" rows="10" type="text" id="txtPing" placeholder="message" class="mediumTextBox"></textarea>
+                    <textarea cols="4" rows="10" type="text" id="txtPing" placeholder="message" class="highTextBox"></textarea>
                 </div>
             </div>
             <div>
@@ -69,7 +75,7 @@
         </div>
         <div class="small_margin">
             <textarea id="message_text" name="message_text" cols="20"></textarea>
-            <button id="message_send" name="message_sed" style="vertical-align:top">Send</button>
+            <button id="message_send" name="message_sed" style="vertical-align:top" onclick="javascript: pingBehaviors.pingMessage({{#destination}}{{dest}}{{/destination}});">Send</button>
         </div>
     </div>
 </body>
