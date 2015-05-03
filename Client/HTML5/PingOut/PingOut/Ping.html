@@ -18,7 +18,7 @@
     <div>
         <button id="btnRefresh" name="btnRefresh" value="Refresh" class="highButton">Refresh</button>
     </div>
-    <div id="conversationsList" class="hide">
+    <div id="pingsList" class="hide">
         <div class="messages_host">
             <ul class="clear_circles_in_list">
                 {{#pings}}
@@ -38,7 +38,7 @@
                 {{/pings}}
             </ul>
         </div>
-        <a id="startConversation" onclick="javascript: pingBehaviors.invokeNewConversation();" class="prominent_link small_margin">Start Conversation</a>
+        <a id="startConversation" class="prominent_link small_margin">Start Conversation</a>
     </div>
     <div id="newPing" class="hide">
         <div class="centerVertically">
@@ -51,13 +51,13 @@
                 </div>
             </div>
             <div>
-                <input type="button" id="btnStartPinging" value="Ping" class="highButton" onclick="javascript: pingBehaviors.startConverstion();" />
+                <input type="button" id="btnStartPinging" value="Ping" class="highButton" />
             </div>
         </div>
     </div>
     <div id="messages" class="hide">
         <div id="refreshRegion" class="message_box_area">
-            <div id="pingsList">
+            <div id="pings">
                 <div class="destinedPingerProfile">
                     {{#profile}}
                     <div class="small_margin flat_layout_left">
@@ -71,15 +71,13 @@
                 <div>
                     <ul class="clear_circles_in_list">
                         {{#pings}}
-                        <li class="clear_circles_in_list box_for_message">
-                            <div class="{{participant_direction}}">
-                                <div class="small_margin_vertical">
-                                    <span data-id="{{message_id}}">{{message}}</span>
-                                    <br />
-                                    <span class="flat_layout_right small_info_font">
-                                        {{sent_time}} > {{recieved_time}}
-                                    </span>
-                                </div>
+                        <li class="clear_circles_in_list {{participant_direction}} box_for_message">
+                            <div class="small_margin_vertical {{participant_direction}}">
+                                <span data-id="{{message_id}}">{{message}}</span>
+                                <br />
+                                <span class="flat_layout_right small_info_font">
+                                    {{sent_time}} > {{recieved_time}}
+                                </span>
                             </div>
                         </li>
                         {{/pings}}
