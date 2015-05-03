@@ -28,7 +28,7 @@
                     </div>
                     <div class="flat_layout_left content_host">
                         <div class="small_margin_vertical">
-                            <a href="#" id="detailPings" name="detailPings" onclick="javascript: pingBehaviors.loadMessages('{{Source}}','{{Destination}}');">{{Destination}}</a>
+                            <a href="#" id="detailPings" name="detailPings" data-source='{{Source}}' data-destination='{{Destination}}'>{{Destination}}</a>
                         </div>
                         <div class="small_margin_vertical">
                             <span>{{last_message}}</span>
@@ -56,36 +56,38 @@
         </div>
     </div>
     <div id="messages" class="hide">
-        <div class="message_box_area">
-            <div class="destinedPingerProfile">
-                {{#profile}}
-                <div class="small_margin flat_layout_left">
-                    <img src="{{profile_picture}}" class="contact_image_size" />
+        <div id="refreshRegion" class="message_box_area">
+            <div id="pingsList">
+                <div class="destinedPingerProfile">
+                    {{#profile}}
+                    <div class="small_margin flat_layout_left">
+                        <img src="{{profile_picture}}" class="contact_image_size" />
+                    </div>
+                    <div id="destinedPinger" class="small_margin_vertical flat_layout_right">
+                        {{destined_user}}
+                    </div>
+                    {{/profile}}
                 </div>
-                <div id="destinedPinger" class="small_margin_vertical flat_layout_right">
-                    {{destined_user}}
-                </div>
-                {{/profile}}
-            </div>
-            <div>
-                <ul class="clear_circles_in_list">
-                    {{#pings}}
-                    <li class="clear_circles_in_list box_for_message">
-                        <div class="{{participant_direction}}">
-                            <div class="small_margin_vertical">
-                                <span data-id="{{message_id}}">{{message}}</span>
-                                <br />
-                                <span class="flat_layout_right small_info_font">
-                                    {{sent_time}} > {{recieved_time}}
-                                </span>
+                <div>
+                    <ul class="clear_circles_in_list">
+                        {{#pings}}
+                        <li class="clear_circles_in_list box_for_message">
+                            <div class="{{participant_direction}}">
+                                <div class="small_margin_vertical">
+                                    <span data-id="{{message_id}}">{{message}}</span>
+                                    <br />
+                                    <span class="flat_layout_right small_info_font">
+                                        {{sent_time}} > {{recieved_time}}
+                                    </span>
+                                </div>
                             </div>
-                        </div>
-                    </li>
-                    {{/pings}}
-                </ul>
+                        </li>
+                        {{/pings}}
+                    </ul>
+                </div>
             </div>
         </div>
-        <div class="small_margin">
+        <div id="newPingRegion" class="small_margin">
             <textarea id="message_text" name="message_text" cols="20"></textarea>
             <button id="message_send" name="message_send">Send</button>
         </div>

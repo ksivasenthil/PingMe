@@ -157,6 +157,10 @@ a.prominent_link {
     font-size: 20px;
 }
 
-.destinedPingerProfile{
+.destinedPingerProfile {
     height: 25%;
+}
+
+#pingsList {
+    height: 100%;
 }

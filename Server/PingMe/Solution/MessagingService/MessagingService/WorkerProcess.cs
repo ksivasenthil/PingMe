@@ -88,14 +88,14 @@ namespace MessagingService
                 IEnumerable<IGrouping<string, MessagePing>> inComingPings = Storage.Where(inComingCriteria).OrderBy<MessagePing, DateTime?>(a => a.MessageSentUTC).GroupBy<MessagePing, string>(a => { return a.Source; });
 
                 conversationRoot = BuildList(outGoingPings, source, true);
-                var inCompingPingList = BuildList(inComingPings, source, false);
+                var inComingPingList = BuildList(inComingPings, source, false);
                 var differentialPingList = new List<PingList>();
-                foreach (PingList candidatePing in inCompingPingList)
+                foreach (PingList candidatePing in inComingPingList)
                 {
                     bool pingersAreOnlyIncomingWithNoReplies = true;
                     foreach (PingList basedOutPing in conversationRoot)
                     {
-                        //If the following condition evaluates to true, it is a conversation between the numbers
+                        //If the following condition evaluates to true, it is not a conversation between the numbers
                         pingersAreOnlyIncomingWithNoReplies &= candidatePing.PingerSource != basedOutPing.PingerDestination;
                     }
                     if (pingersAreOnlyIncomingWithNoReplies)
@@ -137,7 +137,7 @@ namespace MessagingService
                     searchResult = null;
                 }
 
-                searchResult = (searchResult as IEnumerable<MessagePing>).OrderBy<MessagePing, DateTime?>(d => d.MessageSentUTC).ToList<MessagePing>();
+                searchResult = (searchResult as IEnumerable<MessagePing>).OrderByDescending<MessagePing, DateTime?>(d => d.MessageSentUTC).ToList<MessagePing>();
 
             }
             else

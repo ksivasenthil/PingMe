@@ -2,19 +2,23 @@
     pingBehaviors.loadConversations();
     $(document).on('keydown', function (e) {
         if (e.keyCode === 27) { // ESC
+            clearInterval(pingBehaviors.timerForMessageCompleteRefresh);
             pingBehaviors.loadConversations();
         }
     });
     $('#btnRefresh').on('click', function () {
+        clearInterval(pingBehaviors.timerForMessageCompleteRefresh);
         pingBehaviors.loadConversations();
     });
-    //$(document.body).on('click', '#detailPings', function () {
-    //    alert('called');
-    //    var source = $(this).attr('data-Source');
-    //    var destination = $(this).attr('data-Destination');
-    //    pingBehaviors.loadMessages(source, destination);
-    //    return false;
-    //});
+    $(document.body).on('click', '#detailPings', function () {
+        var source = $(this).attr('data-Source');
+        var destination = $(this).attr('data-Destination');
+        pingBehaviors.loadMessages(source, destination, 'messages', 'contentHost');
+        clearInterval(pingBehaviors.timerForMessageCompleteRefresh);
+        pingBehaviors.timerForMessageCompleteRefresh = window.setInterval(function () {
+            pingBehaviors.loadMessages(source, destination, 'pingsList', 'refreshRegion');
+        }, 5000);
+    });
     $(document.body).on('click', '#message_send', function () {
         pingBehaviors.pingMessage();
     });
@@ -62,6 +66,7 @@ var pingBehaviors = (function () {
     var setUniversalSource = function () {
         universalSource = $('#sourcePinger').val() ? $('#sourcePinger').val() : universalSource;
     };
+    var timerForMessageCompleteRefresh = null;
     return {
         loadConversations: function () {
             setUniversalSource();
@@ -132,7 +137,7 @@ var pingBehaviors = (function () {
 
             this.postPing(source, target, message);
         },
-        loadMessages: function (left, right) {
+        loadMessages: function (left, right, targetRegion, hostRegion) {
             var source = left;
             var target = right;
             var template = null;
@@ -199,14 +204,14 @@ var pingBehaviors = (function () {
 
                         var areThereMessages = 0 < displayMessage.pings.length;
                         if (areThereMessages) {
-                            template = $(messages).html();
+                            template = $('#' + targetRegion + '').html();
                             formattedMarkup = Mustache.render(template, displayMessage);
                         } else {
                             template = $(newPing).html();
                             formattedMarkup = Mustache.render(template, displayMessage);
                         }
+                        $('#' + hostRegion + '').html(formattedMarkup);
 
-                        $('#contentHost').html(formattedMarkup);
                     } else {
                         alert('Not a great news :(');
                     }
@@ -228,12 +233,14 @@ var pingBehaviors = (function () {
                 dataType: "xml",
                 data: soapRequest,
                 processData: true,
+                reloadMessagesHandle: this.loadMessages,
                 complete: function (xmlHttpResponse, status) {
                     if (status == 'success') {
                         var postResult = $(xmlHttpResponse.responseXML).find('PostMessageResult')[0];
                         var serverPostResponse = $(postResult).text();
                         if (serverPostResponse === 'true') {
                             alert('Success !! message posted');
+                            this.reloadMessagesHandle(universalSource, target, 'pingsList', 'refreshRegion');
                         } else {
                             alert('something went wrong in server :(');
                         }
@@ -248,7 +255,7 @@ var pingBehaviors = (function () {
             var target = $('#destinedPinger').text().trim();
             var message = $('#message_text').val();
             this.postPing(universalSource, target, message);
-            this.loadMessages(universalSource, target);
+            var resetTextArea = setTimeout(function () { $('#message_text').val(''); }, 1000);
         }
     };
 })();
